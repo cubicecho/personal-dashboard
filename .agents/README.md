@@ -1,6 +1,6 @@
 # Personal Dashboard — Agent Docs
 
-Design docs for composing the cubicecho apps (auto-cal, notes, philotes) into one dashboard of federated microapps. Nothing is implemented yet — these docs are the plan.
+Design docs for composing the cubicecho apps (auto-cal, notes, philotes, eunomia) into one dashboard of federated microapps. They are the plan for the *federated* architecture — see the status note below for what is actually implemented today, and [AGENTS.md](../AGENTS.md) for how to work in this repo.
 
 | Doc | Contents |
 |---|---|

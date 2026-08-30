@@ -1,138 +1,168 @@
-# Project: Auto Cal
+# Project: Personal Dashboard
 
-Auto Cal is a smart todo and habit scheduling application. Users create todo lists (grouped by activity type), todos (single-time tasks belonging to a list), and habits (repeated tasks) that are automatically scheduled within user-defined time blocks based on priority and activity type.
+One page and one GraphQL endpoint over the cubicecho personal cloud. The
+dashboard introspects each app's existing `/graphql` — **auto-cal**, **notes**,
+**philotes**, **eunomia** — and stitches them into a single namespaced
+supergraph. The apps stay completely independent: **no change is ever required
+in an app repo to add it here.** That constraint is the whole design, and it is
+why this is schema *stitching* rather than federation.
 
-Monorepo: `db` (Drizzle + PGLite), `server` (Express + Apollo), `client` (React + Vite).
+```
+browser ── /            static dashboard page, no build step
+        └─ /graphql     stitched supergraph + GraphiQL
+                ├── autocal_*   → auto-cal   /graphql
+                ├── notes_*     → notes      /graphql
+                ├── philotes_*  → philotes   /graphql
+                ├── eunomia_*   → eunomia    /graphql
+                └── plugins     gateway-local health field
+```
+
+Not a monorepo of apps — a single npm workspace (`server`) plus a static `app/`.
 
 ## Commands
 
 ```bash
 # Dev
-npm run dev              # start frontend + backend
-npm run dev:server       # GraphQL server only (localhost:3001)
-npm run dev:client       # React client only (localhost:3000)
+npm run dev              # server + page on :3000, node --watch, loads ../.env
+npm start                # same without --watch
 
 # Quality
-npm run typecheck        # tsc --noEmit across all packages
 npm run lint             # biome check .
 npm run lint:fix         # biome check --write .
+npm run typecheck        # tsc --noEmit
+npm test                 # node --test (unit + HTTP smoke)
 
-# Database
-npm run db:generate      # drizzle-kit generate (after schema changes)
-npm run db:migrate       # drizzle-kit migrate
-npm run db:studio        # Drizzle Studio GUI
-
-# GraphQL
-npm run codegen          # runs codegen:server then codegen:client
-npm run codegen:server   # server resolver types (reads schema.graphql)
-npm run codegen:client   # client typed operations (reads schema.graphql)
-
-# Build
-npm run build            # codegen + vite + tsc (run before docker build)
-npm run build:docker     # docker build -t auto-cal .
-npm test                 # vitest
+# A throwaway plugin to develop against
+PORT=4321 node server/test/fixtures/fake-plugin.ts
+PLUGIN_FAKE_URL=http://localhost:4321/graphql npm run dev
 ```
 
 **Before every commit:** run `npm test` and `npm run lint`, and do not complete
-the commit until both pass. A commit is not done until lint and tests are green
-— fix any failures first, then commit. CI will fail if either does not pass.
+the commit until both pass. CI (`.github/workflows/ci.yml`) runs lint,
+typecheck and test on node 26 and will fail if any does not.
 
 ## Tech Stack
 
 | Choice | Why |
 |--------|-----|
-| **Biome** | Single tool replacing ESLint + Prettier; enforces `useImportType`, `noUnusedImports`, consistent formatting |
-| **drizzle-graphql** | Auto-generates GraphQL schema from Drizzle tables — zero duplication; we extend with custom resolvers |
-| **PGLite** | Embedded Postgres, zero setup for local dev and single-node deploys; swap to full Postgres via `DATABASE_URL` |
-| **--experimental-strip-types** | Node 22+ runs TypeScript directly — no tsc watch, no build step for the server; requires `.ts` extensions in all imports |
-| **Auth** | Magic-link + JWT (jose) is live. `requestMagicLink` / `verifyMagicLink` mutations are public. Set `EXPOSE_MAGIC_LINK` for dev-style passwordless login on local/secure networks. |
+| **`@graphql-tools/stitch`** | Introspect + prefix + merge at runtime. Federation would need a `/subgraph` endpoint added to every app; stitching needs nothing from them. The tradeoff is no cross-app entity joins — see `.agents/federation.md` for the eventual swap |
+| **GraphQL Yoga** | Accepts a `schema: () => …` thunk, so `POST /reload` can hot-swap the stitched schema without a restart |
+| **Express 4** | Only serving static files and mounting yoga. **It does not catch rejected promises from async handlers** — every async route must try/catch itself |
+| **Native TS (node type stripping)** | Node runs `.ts` directly; no build step, no watcher. Requires `.ts` extensions on every relative import, and `erasableSyntaxOnly` — no enums, no parameter properties, no namespaces |
+| **Biome** | Single tool for lint + format; enforces `useImportType`, `noUnusedImports`, single quotes, trailing commas |
+| **No framework in `app/`** | Vanilla JS + one stylesheet, served straight off disk. The page is a thin client over the supergraph; keep it that way until the Expo shell in `.agents/roadmap.md` Phase 2 replaces it wholesale |
+| **`node --test`** | Built in; no vitest/jest dependency for a project this size |
+
+## Layout
+
+```
+server/src/plugins.ts   plugin registry + auth header resolution
+server/src/gateway.ts   introspect → prefix → stitch; the federation seam
+server/src/http.ts      express: /graphql (yoga), /health, /reload, static app/
+server/src/index.ts     read env, load the gateway, listen
+app/                    the dashboard page (no build step)
+server/test/            unit tests + the end-to-end HTTP smoke test
+```
 
 ## Key Conventions
 
-**Type inference — never duplicate types manually:**
+**A plugin is just a GraphQL endpoint.** Adding one is either an entry in
+`DEFAULT_PLUGINS` (`server/src/plugins.ts`) or zero code —
+`PLUGIN_<NAME>_URL=http://host:port/graphql` in the environment registers it at
+runtime. Add a card to `WIDGETS` in `app/dashboard.js` if it should appear on
+the page.
+
+**The plugin name is a schema prefix, so it must be a legal GraphQL name.**
+It becomes `<name>_rootField`, `<Name>Type`, the `x-<name>-token` header, and
+the `PLUGIN_<NAME>_*` env vars. `loadPlugins` validates it and throws naming the
+offending variable; never let a bad name reach `stitchSchemas`, where the error
+is opaque.
+
+**The gateway mints no identity.** Each app verifies exactly the token it would
+verify standalone. `resolveAuthHeader` resolves, in order: the browser's
+`x-<plugin>-token` header → the `PLUGIN_<NAME>_TOKEN` env → the caller's own
+`Authorization`, forwarded verbatim. Do not add a code path that issues,
+rewrites, or infers a credential.
+
+**Degrade, never crash.** The dashboard's contract is that it works with
+whatever is up. A plugin that is down or refuses introspection is recorded in
+`statuses` and skipped; a stitch failure at boot serves the status-only schema
+instead of exiting; a failed `/reload` answers 503 and keeps the schema that was
+already working. When adding a failure path, decide what it degrades *to*.
+
 ```typescript
-export type Todo = typeof todos.$inferSelect;
-export type NewTodo = typeof todos.$inferInsert;
+// ✅ a failure is reported and survivable
+catch (err) { statuses.push({ name, url, ok: false, error: message(err) }); }
+
+// ❌ one bad app takes the dashboard down
+const schema = await schemaFromExecutor(executor);
 ```
 
-**Enum pattern:**
-```typescript
-export const FREQUENCY_UNITS = ['week', 'month'] as const;
-export type FrequencyUnit = (typeof FREQUENCY_UNITS)[number];
-```
+**Partial GraphQL responses are the normal case.** Under stitching, one upstream
+field erroring says nothing about the rest of the response. `gql()` in
+`app/dashboard.js` returns `{ data, errors }` and cards render what resolved —
+never throw away `data` because `errors` is non-empty.
 
-**Guard clause order — auth → existence → ownership:**
-```typescript
-if (!context.userId) throw new Error('Not authenticated');
-const todo = await context.db.query.todos.findFirst({ where: eq(todos.id, id) });
-if (!todo) throw new Error(`Todo ${id} not found`);
-if (todo.userId !== context.userId) throw new Error('Forbidden');
-```
+**Errors are the UX.** `maskedErrors: false` is deliberate: "bad token", "app
+down" and friends are exactly what the user needs to see. This is safe only
+because the deployment is LAN-only and single-user — revisit before exposing
+anything beyond the LAN, along with the unauthenticated `/health` and `/reload`.
 
-**Zod validation at resolver boundary:**
-```typescript
-const input = CreateTodoInput.parse(args.input); // throws ZodError if invalid
-```
+**`server/src/gateway.ts` is the seam the federation phase replaces.** Swapping
+introspection+prefixing for composed `/subgraph` endpoints should change that
+file and nothing else. Keep `plugins.ts`, `http.ts` and the page from growing a
+dependency on how the schema got built.
 
-**Never swallow errors:**
-```typescript
-try {
-  await someOperation();
-} catch (cause) {
-  throw new Error('Failed to complete operation', { cause });
-}
-```
+**Imports:** relative imports carry the `.ts` extension, and type-only imports
+use `import type` (`verbatimModuleSyntax`).
 
-**GraphQL operations in the client must use the typed `graphql()` helper — never raw `gql`:**
-```typescript
-// ✅ correct
-import { graphql } from '@/__generated__/index.js';
-const MY_QUERY = graphql(`query Foo { ... }`);
+## Testing
 
-// ❌ wrong — loses type safety
-import { gql } from '@apollo/client';
-const MY_QUERY = gql`query Foo { ... }`;
-```
-After adding or changing any operation, re-run `npm run codegen` to regenerate types.
-The generated files in `__generated__/` are gitignored — do not commit them.
+`npm test` must pass on a machine with **nothing running**. Tests that need a
+plugin start `startFakePlugin()` from `server/test/fixtures/fake-plugin.ts`,
+which binds an ephemeral port; never point a test at `localhost:3001` or any
+other real app, and never depend on the `DEFAULT_PLUGINS` defaults resolving.
 
-## Finding files, text or other code. 
+- `server/test/gateway.test.ts` — stitching and registry behavior against
+  in-memory fixture schemas that collide the way the real apps do (duplicate
+  `Note`, `me`, `requestMagicLink`).
+- `server/test/smoke.test.ts` — the real `loadPlugins → loadGateway →
+  express+yoga` stack over HTTP: introspection, `/reload`'s schema swap, the
+  down-plugin path, and proof that auth headers reach upstream.
 
-Prefer using an LSP and finding definitions, references, etc through it instead of using grep.
-You can scan the project to detect what LSP makes the most sense to start with.
+Anything touching auth header resolution needs a smoke-test assertion, not just
+a unit test — `resolveAuthHeader` being correct in isolation does not prove the
+executor puts its output on the wire.
 
 ## Running Commands
 
-Prefer scripts defined in `package.json` (e.g. `npm run db:generate`, `npm run typecheck`) over ad-hoc tool invocations (`npx drizzle-kit ...`, `npx tsc ...`). The scripts wrap env loading, workspace targeting, and flag conventions — bypassing them tends to break on env vars or surface different errors than the rest of the team sees.
+Prefer scripts defined in `package.json` over ad-hoc invocations (`npx tsc …`,
+`npx biome …`). The scripts wrap env loading and workspace targeting.
+
+## Finding files, text or other code
+
+Prefer using an LSP and finding definitions and references through it instead of
+grep. Scan the project to detect which LSP makes the most sense to start with.
 
 ## Agent File Convention
 
-All files related to project structure, tasks, planning, and feature tracking live in `.agents/`. Agents must read from and write to `.agents/` for any such files — never create them at the repo root.
+All files related to project structure, tasks, planning, and feature tracking
+live in `.agents/`. Agents must read from and write to `.agents/` for any such
+files — never create them at the repo root. Always add new `.agents/` files to
+the reference list below.
 
-Always add new `.agents/` files to the reference list below.
-
-## Keep the Website in Sync
-
-The marketing/docs site lives in `site/` (Eleventy → GitHub Pages, published at
-`https://cubicecho.github.io/auto-cal/`). When you complete a user-facing
-feature, change, or remove functionality, update the site in the same change so
-it never falls behind the app:
-
-- **New or changed features** — update the feature descriptions in `site/src/index.njk` (and the hero example if the scheduling/day view changed).
-- **Self-hosting changes** — new env vars, ports, Docker options, or setup steps go in `site/src/self-hosting.njk` (keep it consistent with `README.md`).
-- **Renamed/removed views or flows** — fix any references so screenshots, copy, and examples match what ships.
-
-Preview locally with `npm run dev` inside `site/` (serves on `localhost:8080`);
-the GitHub Pages workflow (`.github/workflows/pages.yml`) deploys on push to `main`.
+Note the split: **`.agents/` describes the federated architecture this project
+is heading toward; the code implements the stitching MVP that came first.**
+Where the two disagree, the code is what runs. Do not "fix" the code to match
+the docs, or the docs to match the code, without saying which side you are
+moving.
 
 ## Agent Reference Files
 
-- [`.agents/project-structure.md`](.agents/project-structure.md) — Full package layout, DB schema tables, GraphQL operations, client components, resolver pipeline, directory tree
-- [`.agents/db-patterns.md`](.agents/db-patterns.md) — Drizzle table definitions, type inference, query/insert/update/delete patterns, dual-backend connection, migrations
-- [`.agents/server-patterns.md`](.agents/server-patterns.md) — GraphQL schema pipeline, resolver authoring, guard clauses, Zod validation, JWT auth, DataLoader usage
-- [`.agents/graphql-patterns.md`](.agents/graphql-patterns.md) — Schema extension SDL, core/custom types, key queries and mutations, naming conventions, cache invalidation
-- [`.agents/client-patterns.md`](.agents/client-patterns.md) — Apollo Client setup, TanStack Router, colocated operations, fragment colocation, TanStack Form, ShadCN/Tailwind component patterns, codegen
-- [`.agents/scheduling.md`](.agents/scheduling.md) — Scheduling algorithm, writeback service, pre-placement lock, habit instance generation
-- [`.agents/deployment.md`](.agents/deployment.md) — Docker setup, environment variables, PGLite vs Postgres switching
-- [`.agents/plan-19-api-keys.md`](.agents/plan-19-api-keys.md) — Plan for personal API keys (Home Assistant and similar external integrations)
-- [`.agents/plan-caldav.md`](.agents/plan-caldav.md) — Optional feature: read-write CalDAV endpoint authenticated via API keys
+- [`.agents/README.md`](.agents/README.md) — Index of the design docs, plus the status note on how the MVP relates to them
+- [`.agents/architecture.md`](.agents/architecture.md) — Target system overview, decision summary, repo layout, related repos
+- [`.agents/federation.md`](.agents/federation.md) — Hive Gateway, offline composition, `@cubicecho/federation` `toSubgraph()`, collision handling, entity graph, per-app change lists, MCP at the gateway
+- [`.agents/auth.md`](.agents/auth.md) — OIDC SSO on panva `oidc-provider`, map-by-email, `createOidcVerifier`, zero-trust token flow, standalone fallback
+- [`.agents/ui-sharing.md`](.agents/ui-sharing.md) — `@cubicecho/*-ui` packages, fragments, one Apollo v4 client, codegen, Metro/NativeWind, Apollo v3/v4 skew
+- [`.agents/deployment.md`](.agents/deployment.md) — Docker Compose stack, port map, env conventions, issuer-URL gotcha
+- [`.agents/roadmap.md`](.agents/roadmap.md) — Four phases with per-phase verification, deferred work, risk table
