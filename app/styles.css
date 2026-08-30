@@ -1,0 +1,117 @@
+:root {
+  --bg: #0f1115;
+  --card: #171a21;
+  --card-edge: #232734;
+  --text: #e6e8ee;
+  --muted: #8b90a0;
+  --accent: #7aa2f7;
+  --ok: #9ece6a;
+  --bad: #f7768e;
+  --warn: #e0af68;
+  font-size: 15px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.4rem;
+  border-bottom: 1px solid var(--card-edge);
+  flex-wrap: wrap;
+}
+h1 { font-size: 1.15rem; margin: 0; font-weight: 600; }
+.header-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+button {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--card-edge);
+  border-radius: 8px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+button:hover { border-color: var(--accent); }
+.chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.chip {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--card-edge);
+  color: var(--muted);
+}
+.chip.ok { border-color: color-mix(in srgb, var(--ok) 45%, transparent); color: var(--ok); }
+.chip.bad { border-color: color-mix(in srgb, var(--bad) 45%, transparent); color: var(--bad); cursor: help; }
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  padding: 1.2rem 1.4rem;
+  align-content: start;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-edge);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  min-height: 8rem;
+}
+.card h2 {
+  margin: 0 0 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.card .empty, .card .error, .card .loading { color: var(--muted); font-size: 0.9rem; }
+.card .error { color: var(--warn); overflow-wrap: anywhere; }
+ul.rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+ul.rows li { display: flex; gap: 0.6rem; align-items: baseline; font-size: 0.92rem; }
+.time { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 0.85rem; }
+.sub { color: var(--muted); font-size: 0.8rem; margin-left: auto; white-space: nowrap; }
+.overdue { color: var(--bad); }
+.done { text-decoration: line-through; color: var(--muted); }
+.bar-row { display: grid; grid-template-columns: 8rem 1fr 4rem; gap: 0.6rem; align-items: center; font-size: 0.88rem; }
+.bar-track { background: var(--bg); border-radius: 4px; height: 0.55rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; }
+footer {
+  padding: 0.7rem 1.4rem;
+  border-top: 1px solid var(--card-edge);
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+footer a { color: var(--accent); }
+dialog {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--card-edge);
+  border-radius: 12px;
+  max-width: 30rem;
+  width: 90vw;
+}
+dialog::backdrop { background: rgb(0 0 0 / 0.55); }
+dialog h2 { margin-top: 0; font-size: 1rem; }
+dialog .hint { color: var(--muted); font-size: 0.8rem; }
+dialog label { display: block; font-size: 0.85rem; margin: 0.6rem 0 0.2rem; color: var(--muted); }
+dialog input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--card-edge);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+}
+dialog menu { display: flex; gap: 0.5rem; justify-content: flex-end; padding: 0; margin: 1rem 0 0; }
+code { color: var(--accent); }

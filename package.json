@@ -1,0 +1,20 @@
+{
+  "name": "personal-dashboard",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Personal Dashboard — stitches the cubicecho apps into one GraphQL supergraph + dashboard page",
+  "private": true,
+  "workspaces": ["server"],
+  "scripts": {
+    "dev": "npm run dev -w @cubicecho/dashboard-server",
+    "start": "npm run start -w @cubicecho/dashboard-server",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4"
+  }
+}

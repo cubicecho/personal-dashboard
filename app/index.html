@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Personal Dashboard</h1>
+    <div id="status-chips" class="chips"></div>
+    <div class="header-actions">
+      <button id="refresh" title="Refresh widgets">↻</button>
+      <button id="reload-plugins" title="Re-introspect plugins">⟲ plugins</button>
+      <button id="settings-toggle" title="Tokens">⚙</button>
+    </div>
+  </header>
+
+  <dialog id="settings">
+    <form method="dialog">
+      <h2>Plugin tokens</h2>
+      <p class="hint">
+        Paste a token per app (API key / <code>cet_</code> token / JWT). Stored in this
+        browser's localStorage only and sent as <code>x-&lt;plugin&gt;-token</code> headers.
+        Server-side <code>PLUGIN_*_TOKEN</code> env vars work too and need nothing here.
+      </p>
+      <div id="token-fields"></div>
+      <menu>
+        <button value="save" id="save-tokens">Save</button>
+        <button value="cancel">Cancel</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <main id="grid"></main>
+
+  <footer>
+    <a href="/graphql" target="_blank" rel="noopener">GraphiQL</a> ·
+    stitched from the plugin registry — add apps in <code>server/src/plugins.ts</code>
+    or with <code>PLUGIN_&lt;NAME&gt;_URL</code>
+  </footer>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
