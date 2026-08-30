@@ -32,15 +32,24 @@ without a restart.
 ## Auth
 
 The gateway mints nothing — each app verifies exactly the token it would
-standalone. Per plugin, the upstream `Authorization` header is, in order:
+standalone. Per plugin, the credential sent upstream is, in order:
 
 1. `x-<plugin>-token` request header — set per-browser in the page's ⚙ panel
-   (stored in localStorage), sent as `Bearer <token>`;
+   (stored in localStorage);
 2. `PLUGIN_<NAME>_TOKEN` env — a server-side API key/token;
 3. the caller's own `Authorization` header, forwarded verbatim.
 
+**Which header it rides in is per-plugin.** The default is `Authorization`, and
+a token going there gets a `Bearer ` scheme. `PLUGIN_<NAME>_AUTH_HEADER` (or an
+`authHeader` in `server/src/plugins.ts`) sends it somewhere else instead, raw —
+a custom header carries no scheme. `eunomia` defaults to `x-api-key`, because
+that is the only header its non-expiring device keys are accepted on. A
+passthrough `Authorization` (case 3) always stays on `Authorization`: it is a
+bearer session token, and renaming it would strip the header that verifies it.
+
 Mint a token in each app (auto-cal API key, notes `cet_` token, philotes API
-key, eunomia API key) and put it in `.env` or the ⚙ panel.
+key, eunomia device key via `registerDevice`) and put it in `.env` or the ⚙
+panel.
 
 ## Adding a plugin
 

@@ -7,7 +7,7 @@ import {
   loadGateway,
   stitchLoaded,
 } from '../src/gateway.ts';
-import { loadPlugins, resolveAuthHeader } from '../src/plugins.ts';
+import { loadPlugins, resolveAuthHeaders } from '../src/plugins.ts';
 import { startFakePlugin } from './fixtures/fake-plugin.ts';
 
 // Two fixture apps that collide the way the real ones do: both define a
@@ -86,29 +86,51 @@ test('gateway-local plugins field reports statuses', async () => {
   });
 });
 
-test('resolveAuthHeader priority: x-token header, then env, then authorization', () => {
-  const plugin = { name: 'notes', url: 'local' };
-  const headers = (map: Record<string, string>) => ({
-    get: (name: string) => map[name.toLowerCase()] ?? null,
-  });
+const headers = (map: Record<string, string>) => ({
+  get: (name: string) => map[name.toLowerCase()] ?? null,
+});
 
-  assert.equal(
-    resolveAuthHeader(plugin, headers({ 'x-notes-token': 'cet_abc' }), {}),
-    'Bearer cet_abc',
+test('resolveAuthHeaders priority: x-token header, then env, then authorization', () => {
+  const plugin = { name: 'notes', url: 'local' };
+
+  assert.deepEqual(
+    resolveAuthHeaders(plugin, headers({ 'x-notes-token': 'cet_abc' }), {}),
+    { authorization: 'Bearer cet_abc' },
   );
-  assert.equal(
-    resolveAuthHeader(plugin, headers({}), { PLUGIN_NOTES_TOKEN: 'cet_env' }),
-    'Bearer cet_env',
+  assert.deepEqual(
+    resolveAuthHeaders(plugin, headers({}), { PLUGIN_NOTES_TOKEN: 'cet_env' }),
+    { authorization: 'Bearer cet_env' },
   );
-  assert.equal(
-    resolveAuthHeader(
+  assert.deepEqual(
+    resolveAuthHeaders(
       plugin,
       headers({ authorization: 'Bearer passthru' }),
       {},
     ),
-    'Bearer passthru',
+    { authorization: 'Bearer passthru' },
   );
-  assert.equal(resolveAuthHeader(plugin, headers({}), {}), undefined);
+  assert.deepEqual(resolveAuthHeaders(plugin, headers({}), {}), {});
+});
+
+test('resolveAuthHeaders: a custom auth header gets the raw credential', () => {
+  // eunomia reads `x-api-key`, and hands the value straight to verifyApiKey —
+  // a `Bearer ` scheme there would make the key fail to verify.
+  const plugin = { name: 'eunomia', url: 'local', authHeader: 'x-api-key' };
+
+  assert.deepEqual(
+    resolveAuthHeaders(plugin, headers({ 'x-eunomia-token': 'dk_abc' }), {}),
+    { 'x-api-key': 'dk_abc' },
+  );
+  assert.deepEqual(
+    resolveAuthHeaders(plugin, headers({}), { PLUGIN_EUNOMIA_TOKEN: 'dk_env' }),
+    { 'x-api-key': 'dk_env' },
+  );
+  // The caller's own Authorization stays on Authorization: it is a bearer
+  // session token, and renaming it would strip the only header that verifies it.
+  assert.deepEqual(
+    resolveAuthHeaders(plugin, headers({ authorization: 'Bearer sess' }), {}),
+    { authorization: 'Bearer sess' },
+  );
 });
 
 test('loadPlugins: env overrides defaults and registers new plugins', () => {
@@ -125,6 +147,33 @@ test('loadPlugins: env overrides defaults and registers new plugins', () => {
     'http://weather:1234/graphql',
   );
   assert.equal(plugins.filter((p) => p.name === 'notes').length, 1);
+});
+
+test('loadPlugins: auth header defaults per plugin and is env-overridable', () => {
+  const plugins = loadPlugins({
+    PLUGIN_EUNOMIA_AUTH_HEADER: 'x-other-key',
+    PLUGIN_WEATHER_URL: 'http://weather:1234/graphql',
+    PLUGIN_WEATHER_AUTH_HEADER: 'x-api-key',
+  });
+  assert.equal(
+    plugins.find((p) => p.name === 'eunomia')?.authHeader,
+    'x-other-key',
+  );
+  assert.equal(
+    plugins.find((p) => p.name === 'weather')?.authHeader,
+    'x-api-key',
+  );
+  // Plugins that say nothing keep the Authorization default.
+  assert.equal(plugins.find((p) => p.name === 'notes')?.authHeader, undefined);
+});
+
+test('loadPlugins: eunomia defaults to x-api-key', () => {
+  // Its only non-expiring credential (a registerDevice device key) is accepted
+  // on that header alone.
+  assert.equal(
+    loadPlugins({}).find((p) => p.name === 'eunomia')?.authHeader,
+    'x-api-key',
+  );
 });
 
 test('loadPlugins: a name that is not a legal GraphQL name is rejected', () => {

@@ -79,10 +79,19 @@ offending variable; never let a bad name reach `stitchSchemas`, where the error
 is opaque.
 
 **The gateway mints no identity.** Each app verifies exactly the token it would
-verify standalone. `resolveAuthHeader` resolves, in order: the browser's
+verify standalone. `resolveAuthHeaders` resolves, in order: the browser's
 `x-<plugin>-token` header → the `PLUGIN_<NAME>_TOKEN` env → the caller's own
 `Authorization`, forwarded verbatim. Do not add a code path that issues,
 rewrites, or infers a credential.
+
+**The auth header name is per-plugin, and only `Authorization` gets a scheme.**
+`PluginConfig.authHeader` (env: `PLUGIN_<NAME>_AUTH_HEADER`) defaults to
+`authorization`, where a bare token is sent as `Bearer <token>`; any other
+header — `eunomia` defaults to `x-api-key`, the only header its non-expiring
+device keys verify on — receives the credential **raw**. Never add a scheme to
+a custom header. A passthrough `Authorization` is the exception to the routing:
+it stays on `Authorization` even for a custom-header plugin, because it is a
+bearer session token and the app that could verify it reads it there.
 
 **Degrade, never crash.** The dashboard's contract is that it works with
 whatever is up. A plugin that is down or refuses introspection is recorded in
@@ -131,8 +140,9 @@ other real app, and never depend on the `DEFAULT_PLUGINS` defaults resolving.
   down-plugin path, and proof that auth headers reach upstream.
 
 Anything touching auth header resolution needs a smoke-test assertion, not just
-a unit test — `resolveAuthHeader` being correct in isolation does not prove the
-executor puts its output on the wire.
+a unit test — `resolveAuthHeaders` being correct in isolation does not prove the
+executor puts its output on the wire. The fixture's `header(name:)` field echoes
+any received header, so a custom-header plugin can be asserted on directly.
 
 ## Running Commands
 

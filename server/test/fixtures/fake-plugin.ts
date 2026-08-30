@@ -16,6 +16,8 @@ const schema = makeExecutableSchema({
       me: String
       "Echoes the Authorization header the plugin received — auth passthrough proof."
       whoami: String
+      "Echoes any received header, for plugins that read a custom one (x-api-key)."
+      header(name: String!): String
     }
   `,
   resolvers: {
@@ -23,6 +25,8 @@ const schema = makeExecutableSchema({
       me: () => 'fake-user',
       whoami: (_src, _args, ctx) =>
         ctx.request.headers.get('authorization') ?? '(none)',
+      header: (_src, args: { name: string }, ctx) =>
+        ctx.request.headers.get(args.name) ?? '(none)',
     },
   },
 });

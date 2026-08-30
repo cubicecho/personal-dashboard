@@ -32,10 +32,20 @@ describe('dashboard server over HTTP', () => {
     // The real registry, exercising env registration of a brand-new plugin.
     // Filtered to the fixture so the four localhost defaults can't make the
     // test depend on what happens to be running on this machine.
-    const plugins = loadPlugins({ PLUGIN_FAKE_URL: pluginUrl }).filter(
-      (p) => p.name === 'fake',
+    // Two registrations of the same fixture endpoint: one plain, one reading
+    // its credential from a custom header the way eunomia does.
+    const plugins = loadPlugins({
+      PLUGIN_FAKE_URL: pluginUrl,
+      PLUGIN_KEYED_URL: pluginUrl,
+      PLUGIN_KEYED_AUTH_HEADER: 'x-api-key',
+    }).filter((p) => p.name === 'fake' || p.name === 'keyed');
+    assert.deepEqual(
+      plugins.map((p) => [p.name, p.authHeader]),
+      [
+        ['fake', undefined],
+        ['keyed', 'x-api-key'],
+      ],
     );
-    assert.deepEqual(plugins, [{ name: 'fake', url: pluginUrl }]);
 
     const app = createApp(plugins, await loadGatewaySafely(plugins));
     server = app.listen(0, '127.0.0.1');
@@ -59,9 +69,13 @@ describe('dashboard server over HTTP', () => {
   test('boots with the plugin down and reports it, rather than crashing', async () => {
     const health = await fetch(`${base}/health`).then((r) => r.json());
     assert.equal(health.ok, true);
-    assert.equal(health.plugins.length, 1);
-    assert.equal(health.plugins[0].name, 'fake');
-    assert.equal(health.plugins[0].ok, false);
+    assert.deepEqual(
+      health.plugins.map((p: { name: string; ok: boolean }) => [p.name, p.ok]),
+      [
+        ['fake', false],
+        ['keyed', false],
+      ],
+    );
     assert.ok(health.plugins[0].error, 'a down plugin records why');
   });
 
@@ -88,6 +102,28 @@ describe('dashboard server over HTTP', () => {
   test('x-<plugin>-token reaches the upstream as an Authorization header', async () => {
     const body = await gql('{ fake_whoami }', { 'x-fake-token': 'abc' });
     assert.deepEqual(body.data, { fake_whoami: 'Bearer abc' });
+  });
+
+  test('a plugin with a custom auth header gets the raw credential', async () => {
+    // No `Bearer ` scheme: eunomia hands an x-api-key value straight to
+    // verifyApiKey, so a prefix would make the key fail to verify.
+    const body = await gql('{ keyed_header(name: "x-api-key") }', {
+      'x-keyed-token': 'dk_abc',
+    });
+    assert.deepEqual(body.data, { keyed_header: 'dk_abc' });
+
+    // …and it does not also land on Authorization.
+    const other = await gql('{ keyed_whoami }', { 'x-keyed-token': 'dk_abc' });
+    assert.deepEqual(other.data, { keyed_whoami: '(none)' });
+  });
+
+  test('a custom-header plugin still receives a passthrough Authorization', async () => {
+    // A bearer session token belongs on Authorization for that app too;
+    // renaming it onto x-api-key would strip the only header verifying it.
+    const body = await gql('{ keyed_whoami }', {
+      authorization: 'Bearer sess',
+    });
+    assert.deepEqual(body.data, { keyed_whoami: 'Bearer sess' });
   });
 
   test("the caller's own Authorization header is forwarded verbatim", async () => {

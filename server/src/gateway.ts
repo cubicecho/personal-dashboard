@@ -21,7 +21,11 @@ import {
   schemaFromExecutor,
 } from '@graphql-tools/wrap';
 import { GraphQLSchema } from 'graphql';
-import { type PluginConfig, resolveAuthHeader, typePrefix } from './plugins.ts';
+import {
+  type PluginConfig,
+  resolveAuthHeaders,
+  typePrefix,
+} from './plugins.ts';
 
 export interface PluginStatus {
   name: string;
@@ -70,10 +74,8 @@ function makeExecutor(plugin: PluginConfig) {
     endpoint: plugin.url,
     headers: (executorRequest) => {
       const context = executorRequest?.context as GatewayContext | undefined;
-      const auth = resolveAuthHeader(plugin, context?.request?.headers);
-      const headers: Record<string, string> = {};
-      if (auth) headers.authorization = auth;
-      return headers;
+      // The header *name* is per-plugin too — see resolveAuthHeaders.
+      return resolveAuthHeaders(plugin, context?.request?.headers);
     },
   });
 }
