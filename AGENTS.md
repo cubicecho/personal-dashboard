@@ -35,7 +35,17 @@ npm test                 # node --test (unit + HTTP smoke)
 # A throwaway plugin to develop against
 PORT=4321 node server/test/fixtures/fake-plugin.ts
 PLUGIN_FAKE_URL=http://localhost:4321/graphql npm run dev
+
+# The whole personal cloud: four apps + one shared postgres + the dashboard
+docker compose -f docker-compose.stack.yml up --build
 ```
+
+The stack runs apps from their **published Docker Hub images only** — never a
+sibling checkout as a build context, so it works from this repo alone and runs
+what each app actually shipped. An app with no published image stays commented
+out until it has one. Read the header of `docker-compose.stack.yml` before
+changing it: the image-only, `NODE_ENV` and no-bind-mount choices are all load
+bearing, and each has a comment explaining what breaks otherwise.
 
 **Before every commit:** run `npm test` and `npm run lint`, and do not complete
 the commit until both pass. CI (`.github/workflows/ci.yml`) runs lint,

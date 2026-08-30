@@ -29,6 +29,53 @@ Apps that are down (or refuse introspection) are skipped with a warning and
 the rest still work; `POST /reload` (or the ⟲ button on the page) re-introspects
 without a restart.
 
+## Running the whole stack
+
+`docker-compose.stack.yml` brings up the apps, the dashboard, and **one shared
+Postgres** — each app gets its own role and database inside it
+(`deploy/postgres/`), so every app sees exactly the database it sees standalone
+and its `DATABASE_URL` differs only in host.
+
+```bash
+cp .env.example .env      # set JWT_SECRET and PUBLIC_HOST
+docker compose -f docker-compose.stack.yml up --build
+```
+
+Apps run from their **published Docker Hub images**, never from a sibling
+checkout, so the stack works from this repo alone and you get what that app
+actually shipped. Apps with no published image are commented out in the file;
+uncomment them once they are pushed. Only the dashboard is built, from here.
+
+| | image | host port | container |
+|---|---|---|---|
+| dashboard | built from this repo | 3000 | `dashboard:3000` |
+| auto-cal | `vantreeseba/auto-cal` | 3001 | `autocal:3001` |
+| philotes | `vantreeseba/philotes` | 3003 | `philotes:3001` |
+| postgres | built from `deploy/postgres` | 5434 (loopback) | `postgres:5432` |
+| notes | **not published** — commented out | 3002 | |
+| eunomia | **not published** — commented out | 4000 | |
+
+The dashboard reaches stack apps by service name over the compose network, so
+the host ports are only for you. An app running *outside* the stack is reached
+over the host instead — `PLUGIN_EUNOMIA_URL` defaults to `PUBLIC_HOST:4000`
+for exactly that reason. Every app runs its own migrations on boot; there is
+no manual migration step.
+
+Two things to know before running it:
+
+- **Introspection.** auto-cal, notes and philotes serve GraphQL through Apollo,
+  which refuses introspection under `NODE_ENV=production` and so cannot be
+  stitched at all. Since no app repo changes to appear on the dashboard, the
+  stack leaves `NODE_ENV` empty for them. That is not free — the header of
+  `docker-compose.stack.yml` lists exactly what each one trades, and
+  `<APP>_NODE_ENV=production` takes any of them back at the cost of dropping
+  off the dashboard.
+- **Remote daemons.** If `docker context ls` shows a remote daemon, published
+  ports land on *that* host — set `PUBLIC_HOST` to it. Nothing in the stack is
+  bind-mounted for the same reason (a bind mount would resolve on the daemon's
+  filesystem and silently mount an empty directory), which is why the Postgres
+  bootstrap is baked into an image rather than mounted.
+
 ## Auth
 
 The gateway mints nothing — each app verifies exactly the token it would
@@ -83,4 +130,6 @@ server/src/http.ts      express: /graphql (yoga), /health, /reload, static app/
 server/src/index.ts     read env, load the gateway, listen
 app/                    the dashboard page (no build step)
 server/test/            unit tests + an end-to-end HTTP smoke test
+deploy/postgres/        the shared Postgres image + per-app role/db bootstrap
+docker-compose.stack.yml  all four apps + shared postgres + the dashboard
 ```
