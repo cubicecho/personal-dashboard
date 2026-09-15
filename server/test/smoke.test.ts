@@ -1,7 +1,7 @@
 /**
  * End-to-end over the real stack: a fixture plugin, the real loadPlugins →
  * loadGateway → express+yoga app. Covers what the unit tests can't — that
- * introspection, per-request auth headers, /reload's schema swap and the
+ * introspection, per-request auth headers, reloadPlugins' schema swap and the
  * degradation path actually work over HTTP.
  *
  * Hermetic: the fixture binds an ephemeral port, so nothing needs to be
@@ -23,7 +23,7 @@ describe('dashboard server over HTTP', () => {
 
   before(async () => {
     // Claim an ephemeral port, then release it: the gateway must boot with the
-    // plugin *down* so we can prove /reload picks it up later.
+    // plugin *down* so we can prove reloadPlugins picks it up later.
     const probe = await startFakePlugin();
     pluginUrl = probe.url;
     pluginPort = probe.port;
@@ -79,21 +79,23 @@ describe('dashboard server over HTTP', () => {
     assert.ok(health.plugins[0].error, 'a down plugin records why');
   });
 
+  const reload = () =>
+    gql('mutation { reloadPlugins { name ok schemaSource } }') as Promise<{
+      data?: { reloadPlugins: { name: string; ok: boolean }[] };
+      errors?: unknown[];
+    }>;
+
   test('reload while still down succeeds and keeps reporting it down', async () => {
-    const body = await fetch(`${base}/reload`, { method: 'POST' }).then((r) =>
-      r.json(),
-    );
-    assert.equal(body.ok, true);
-    assert.equal(body.plugins[0].ok, false);
+    const body = await reload();
+    assert.equal(body.errors, undefined);
+    assert.equal(body.data?.reloadPlugins[0].ok, false);
   });
 
-  test('reload picks up a plugin that came up, no restart', async () => {
+  test('reloadPlugins picks up a plugin that came up, no restart', async () => {
     plugin = await startFakePlugin(pluginPort);
-    const body = await fetch(`${base}/reload`, { method: 'POST' }).then((r) =>
-      r.json(),
-    );
-    assert.equal(body.ok, true);
-    assert.equal(body.plugins[0].ok, true);
+    const body = await reload();
+    assert.equal(body.errors, undefined);
+    assert.equal(body.data?.reloadPlugins[0].ok, true);
 
     // The schema behind `schema: () => gateway.schema` really swapped.
     assert.deepEqual((await gql('{ fake_me }')).data, { fake_me: 'fake-user' });

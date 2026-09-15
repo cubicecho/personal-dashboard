@@ -1,6 +1,6 @@
 /**
  * The dashboard's HTTP surface: /graphql (yoga over the stitched schema),
- * /health, /reload, and the static page. Kept out of index.ts so tests can
+ * /health, and the static page. Kept out of index.ts so tests can
  * drive the real app without binding a port at import time.
  */
 import path from 'node:path';
@@ -9,6 +9,7 @@ import express from 'express';
 import { createYoga } from 'graphql-yoga';
 import {
   type Gateway,
+  type LoadOptions,
   type PluginStatus,
   loadGateway,
   stitchLoaded,
@@ -25,7 +26,7 @@ const message = (err: unknown) =>
 
 /**
  * A gateway that stitched nothing, every plugin reported failed. Serves the
- * status-only schema so /health, /reload and the page keep working when a load
+ * status-only schema so /health, reloadPlugins and the page keep working when a load
  * throws outright.
  */
 function failedGateway(plugins: PluginConfig[], error: string): Gateway {
@@ -38,13 +39,14 @@ function failedGateway(plugins: PluginConfig[], error: string): Gateway {
 /**
  * loadGateway already degrades per plugin; this catches the one failure it
  * doesn't — stitching itself throwing on a malformed upstream schema — so a
- * bad app can't take the whole dashboard down at boot. POST /reload recovers.
+ * bad app can't take the whole dashboard down at boot. reloadPlugins recovers.
  */
 export async function loadGatewaySafely(
   plugins: PluginConfig[],
+  options?: LoadOptions,
 ): Promise<Gateway> {
   try {
-    return await loadGateway(plugins);
+    return await loadGateway(plugins, options);
   } catch (err) {
     console.error(`stitch failed, serving no plugins: ${message(err)}`);
     return failedGateway(plugins, message(err));
@@ -52,12 +54,32 @@ export async function loadGatewaySafely(
 }
 
 /** The express app, starting from an already-loaded gateway. */
-export function createApp(plugins: PluginConfig[], initial: Gateway) {
+export function createApp(
+  plugins: PluginConfig[],
+  initial: Gateway,
+  options?: LoadOptions,
+) {
   let gateway = initial;
 
+  // Re-load every plugin — picks up apps that were down at boot and schema
+  // changes, no restart needed. Assigned only on success: a failed reload
+  // keeps the schema that was already working rather than a half-built one.
+  // Exposed as the `reloadPlugins` mutation, not a REST route, so every
+  // client→server call stays on /graphql.
+  const reload = async () => {
+    try {
+      gateway = await loadGateway(plugins, options);
+      return gateway.statuses;
+    } catch (err) {
+      console.error(`reload failed: ${message(err)}`);
+      throw err;
+    }
+  };
+
   const yoga = createYoga({
-    // Function so POST /reload can swap the schema without restarting.
+    // Function so reloadPlugins can swap the schema without restarting.
     schema: () => gateway.schema,
+    context: { reload },
     graphqlEndpoint: '/graphql',
     // Upstream errors (bad token, app down) are the dashboard's UX — show them.
     maskedErrors: false,
@@ -66,26 +88,10 @@ export function createApp(plugins: PluginConfig[], initial: Gateway) {
   const app = express();
   app.use('/graphql', yoga);
 
+  // NOT GraphQL, deliberately: a liveness probe for docker/uptime checks, which
+  // can't speak GraphQL. The page itself reads the `plugins` query instead.
   app.get('/health', (_req, res) => {
     res.json({ ok: true, plugins: gateway.statuses });
-  });
-
-  // Re-introspect every plugin — picks up apps that were down at boot and
-  // schema changes, no restart needed.
-  app.post('/reload', async (_req, res) => {
-    try {
-      // Assigned only on success: a failed reload keeps the schema that was
-      // already working rather than leaving a half-built one behind.
-      gateway = await loadGateway(plugins);
-      res.json({ ok: true, plugins: gateway.statuses });
-    } catch (err) {
-      // express 4 does not catch rejected promises from async handlers; without
-      // this the request hangs and the process gets an unhandled rejection.
-      console.error(`reload failed: ${message(err)}`);
-      res
-        .status(503)
-        .json({ ok: false, error: message(err), plugins: gateway.statuses });
-    }
   });
 
   app.use(express.static(APP_DIR));

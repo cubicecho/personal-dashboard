@@ -1,0 +1,685 @@
+# Schema snapshot of the notes plugin. The gateway uses it only when
+# the app refuses introspection (NODE_ENV=production). Regenerate with
+#   npm run schemas:snapshot -- notes
+
+"""
+An API token's non-secret metadata. The token value itself is never returned
+except once, at creation time, via CreateApiTokenResult.token.
+"""
+type ApiToken {
+  """DateTime"""
+  createdAt: DateTime!
+
+  """User who created the token."""
+  createdByUserId: String!
+  id: String!
+
+  """DateTime"""
+  lastUsedAt: DateTime
+  name: String!
+  orgId: String!
+
+  """Non-secret display prefix (e.g. `cet_a1b2c3d4`) to identify the token."""
+  tokenPrefix: String!
+}
+
+type AuthPayload {
+  """Session JWT (30 days) — send as Bearer in Authorization header."""
+  token: String!
+  user: User!
+}
+
+input BooleanFilter {
+  OR: [BooleanFilterOr!]
+  eq: Boolean
+  gt: Boolean
+  gte: Boolean
+  ilike: String
+
+  """Array<undefined>"""
+  inArray: [Boolean!]
+  isNotNull: Boolean
+  isNull: Boolean
+  like: String
+  lt: Boolean
+  lte: Boolean
+  ne: Boolean
+  notIlike: String
+
+  """Array<undefined>"""
+  notInArray: [Boolean!]
+  notLike: String
+}
+
+input BooleanFilterOr {
+  eq: Boolean
+  gt: Boolean
+  gte: Boolean
+  ilike: String
+
+  """Array<undefined>"""
+  inArray: [Boolean!]
+  isNotNull: Boolean
+  isNull: Boolean
+  like: String
+  lt: Boolean
+  lte: Boolean
+  ne: Boolean
+  notIlike: String
+
+  """Array<undefined>"""
+  notInArray: [Boolean!]
+  notLike: String
+}
+
+type CreateApiTokenResult {
+  apiToken: ApiToken!
+
+  """
+  The full plaintext token — shown only once. Store it now; it is unrecoverable.
+  """
+  token: String!
+}
+
+input CreateMagicLinkInput {
+  """DateTime"""
+  createdAt: DateTime
+  email: String!
+
+  """DateTime"""
+  expiresAt: DateTime!
+  id: String
+  token: String!
+  used: Boolean
+}
+
+input CreateNoteInput {
+  content: String
+
+  """DateTime"""
+  createdAt: DateTime
+  id: String
+  orgId: String!
+  title: String
+
+  """DateTime"""
+  updatedAt: DateTime
+  userId: String!
+}
+
+input CreateOrgInput {
+  """DateTime"""
+  createdAt: DateTime
+  id: String
+  name: String!
+  personalForUserId: String
+
+  """DateTime"""
+  updatedAt: DateTime
+}
+
+input CreateOrgMemberInput {
+  """DateTime"""
+  createdAt: DateTime
+  orgId: String!
+  role: OrgMembersRoleEnum
+  userId: String!
+}
+
+input CreateUserInput {
+  """DateTime"""
+  createdAt: DateTime
+  email: String!
+  id: String
+
+  """DateTime"""
+  updatedAt: DateTime
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+input DateTimeFilter {
+  OR: [DateTimeFilterOr!]
+
+  """DateTime"""
+  eq: DateTime
+
+  """DateTime"""
+  gt: DateTime
+
+  """DateTime"""
+  gte: DateTime
+  ilike: String
+
+  """Array<DateTime>"""
+  inArray: [DateTime!]
+  isNotNull: Boolean
+  isNull: Boolean
+  like: String
+
+  """DateTime"""
+  lt: DateTime
+
+  """DateTime"""
+  lte: DateTime
+
+  """DateTime"""
+  ne: DateTime
+  notIlike: String
+
+  """Array<DateTime>"""
+  notInArray: [DateTime!]
+  notLike: String
+}
+
+input DateTimeFilterOr {
+  """DateTime"""
+  eq: DateTime
+
+  """DateTime"""
+  gt: DateTime
+
+  """DateTime"""
+  gte: DateTime
+  ilike: String
+
+  """Array<DateTime>"""
+  inArray: [DateTime!]
+  isNotNull: Boolean
+  isNull: Boolean
+  like: String
+
+  """DateTime"""
+  lt: DateTime
+
+  """DateTime"""
+  lte: DateTime
+
+  """DateTime"""
+  ne: DateTime
+  notIlike: String
+
+  """Array<DateTime>"""
+  notInArray: [DateTime!]
+  notLike: String
+}
+
+input IdFilter {
+  OR: [IdFilterOr!]
+  eq: String
+  gt: String
+  gte: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+  isNotNull: Boolean
+  isNull: Boolean
+  lt: String
+  lte: String
+  ne: String
+
+  """Array<undefined>"""
+  notInArray: [String!]
+}
+
+input IdFilterOr {
+  eq: String
+  gt: String
+  gte: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+  isNotNull: Boolean
+  isNull: Boolean
+  lt: String
+  lte: String
+  ne: String
+
+  """Array<undefined>"""
+  notInArray: [String!]
+}
+
+input InnerOrder {
+  direction: OrderDirection!
+
+  """Priority of current field"""
+  priority: Int!
+}
+
+type MagicLink {
+  """DateTime"""
+  createdAt: DateTime!
+  email: String!
+
+  """DateTime"""
+  expiresAt: DateTime!
+  id: String!
+  token: String!
+  used: Boolean!
+}
+
+input MagicLinkFilters {
+  OR: [MagicLinkFiltersOr!]
+  createdAt: DateTimeFilter
+  email: StringFilter
+  expiresAt: DateTimeFilter
+  id: IdFilter
+  token: StringFilter
+  used: BooleanFilter
+}
+
+input MagicLinkFiltersOr {
+  createdAt: DateTimeFilter
+  email: StringFilter
+  expiresAt: DateTimeFilter
+  id: IdFilter
+  token: StringFilter
+  used: BooleanFilter
+}
+
+input MagicLinkOrderBy {
+  createdAt: InnerOrder
+  email: InnerOrder
+  expiresAt: InnerOrder
+  id: InnerOrder
+  token: InnerOrder
+  used: InnerOrder
+}
+
+type Mutation {
+  """
+  Create an API token scoped to a single org. The caller must be a member of
+  the org. The full plaintext token is returned exactly once in the result —
+  it is hashed before storage and can never be retrieved again.
+  """
+  createApiToken(name: String!, orgId: String!): CreateApiTokenResult!
+  createMagicLink(values: CreateMagicLinkInput!): MagicLink
+  createMagicLinks(values: [CreateMagicLinkInput!]!): [MagicLink!]!
+  createNote(values: CreateNoteInput!): Note
+  createNotes(values: [CreateNoteInput!]!): [Note!]!
+  createOrg(values: CreateOrgInput!): Org
+  createOrgMember(values: CreateOrgMemberInput!): OrgMember
+  createOrgMembers(values: [CreateOrgMemberInput!]!): [OrgMember!]!
+  createOrgs(values: [CreateOrgInput!]!): [Org!]!
+  createUser(values: CreateUserInput!): User
+  createUsers(values: [CreateUserInput!]!): [User!]!
+  deleteMagicLinks(where: MagicLinkFilters): [MagicLink!]!
+  deleteNotes(where: NoteFilters): [Note!]!
+  deleteOrgMembers(where: OrgMemberFilters): [OrgMember!]!
+  deleteOrgs(where: OrgFilters): [Org!]!
+  deleteUsers(where: UserFilters): [User!]!
+
+  """
+  Request a magic link for the given email. The link is returned in devLink
+  outside production or with EXPOSE_MAGIC_LINK; otherwise it is only logged
+  (TODO: send via email provider). With AUTH_MAGIC_LINK=false no link is made:
+  the result carries a live session in token/user instead.
+  """
+  requestMagicLink(email: String!): RequestMagicLinkResult!
+
+  """
+  Revoke (permanently delete) an API token the caller is allowed to manage.
+  """
+  revokeApiToken(id: String!): Boolean!
+  updateMagicLinks(set: UpdateMagicLinkInput!, where: MagicLinkFilters): [MagicLink!]!
+  updateNotes(set: UpdateNoteInput!, where: NoteFilters): [Note!]!
+  updateOrgMembers(set: UpdateOrgMemberInput!, where: OrgMemberFilters): [OrgMember!]!
+  updateOrgs(set: UpdateOrgInput!, where: OrgFilters): [Org!]!
+  updateUsers(set: UpdateUserInput!, where: UserFilters): [User!]!
+
+  """Verify a magic-link token and return a session token."""
+  verifyMagicLink(token: String!): AuthPayload!
+}
+
+type Note {
+  content: String!
+
+  """DateTime"""
+  createdAt: DateTime!
+  id: String!
+  org(where: OrgFilters): Org
+  orgId: String!
+  title: String!
+
+  """DateTime"""
+  updatedAt: DateTime!
+  user(where: UserFilters): User
+  userId: String!
+}
+
+input NoteFilters {
+  OR: [NoteFiltersOr!]
+  content: StringFilter
+  createdAt: DateTimeFilter
+  id: IdFilter
+  orgId: IdFilter
+  title: StringFilter
+  updatedAt: DateTimeFilter
+  userId: IdFilter
+}
+
+input NoteFiltersOr {
+  content: StringFilter
+  createdAt: DateTimeFilter
+  id: IdFilter
+  orgId: IdFilter
+  title: StringFilter
+  updatedAt: DateTimeFilter
+  userId: IdFilter
+}
+
+input NoteOrderBy {
+  content: InnerOrder
+  createdAt: InnerOrder
+  id: InnerOrder
+  orgId: InnerOrder
+  title: InnerOrder
+  updatedAt: InnerOrder
+  userId: InnerOrder
+}
+
+"""Order by direction"""
+enum OrderDirection {
+  """Ascending order"""
+  asc
+
+  """Descending order"""
+  desc
+}
+
+type Org {
+  """DateTime"""
+  createdAt: DateTime!
+  id: String!
+  members(limit: Int, offset: Int, orderBy: OrgMemberOrderBy, where: OrgMemberFilters): [OrgMember!]!
+  name: String!
+  notes(limit: Int, offset: Int, orderBy: NoteOrderBy, where: NoteFilters): [Note!]!
+  personalForUserId: String
+
+  """DateTime"""
+  updatedAt: DateTime!
+}
+
+input OrgFilters {
+  OR: [OrgFiltersOr!]
+  createdAt: DateTimeFilter
+  id: IdFilter
+  name: StringFilter
+  personalForUserId: IdFilter
+  updatedAt: DateTimeFilter
+}
+
+input OrgFiltersOr {
+  createdAt: DateTimeFilter
+  id: IdFilter
+  name: StringFilter
+  personalForUserId: IdFilter
+  updatedAt: DateTimeFilter
+}
+
+type OrgMember {
+  """DateTime"""
+  createdAt: DateTime!
+  org(where: OrgFilters): Org
+  orgId: String!
+  role: OrgMembersRoleEnum!
+  user(where: UserFilters): User
+  userId: String!
+}
+
+input OrgMemberFilters {
+  OR: [OrgMemberFiltersOr!]
+  createdAt: DateTimeFilter
+  orgId: IdFilter
+  role: OrgMembersRoleEnumFilter
+  userId: IdFilter
+}
+
+input OrgMemberFiltersOr {
+  createdAt: DateTimeFilter
+  orgId: IdFilter
+  role: OrgMembersRoleEnumFilter
+  userId: IdFilter
+}
+
+input OrgMemberOrderBy {
+  createdAt: InnerOrder
+  orgId: InnerOrder
+  role: InnerOrder
+  userId: InnerOrder
+}
+
+enum OrgMembersRoleEnum {
+  """Value: member"""
+  member
+
+  """Value: owner"""
+  owner
+}
+
+input OrgMembersRoleEnumFilter {
+  OR: [OrgMembersRoleEnumFilterOr!]
+  eq: OrgMembersRoleEnum
+  gt: OrgMembersRoleEnum
+  gte: OrgMembersRoleEnum
+  ilike: String
+
+  """Array<undefined>"""
+  inArray: [OrgMembersRoleEnum!]
+  isNotNull: Boolean
+  isNull: Boolean
+  like: String
+  lt: OrgMembersRoleEnum
+  lte: OrgMembersRoleEnum
+  ne: OrgMembersRoleEnum
+  notIlike: String
+
+  """Array<undefined>"""
+  notInArray: [OrgMembersRoleEnum!]
+  notLike: String
+}
+
+input OrgMembersRoleEnumFilterOr {
+  eq: OrgMembersRoleEnum
+  gt: OrgMembersRoleEnum
+  gte: OrgMembersRoleEnum
+  ilike: String
+
+  """Array<undefined>"""
+  inArray: [OrgMembersRoleEnum!]
+  isNotNull: Boolean
+  isNull: Boolean
+  like: String
+  lt: OrgMembersRoleEnum
+  lte: OrgMembersRoleEnum
+  ne: OrgMembersRoleEnum
+  notIlike: String
+
+  """Array<undefined>"""
+  notInArray: [OrgMembersRoleEnum!]
+  notLike: String
+}
+
+input OrgOrderBy {
+  createdAt: InnerOrder
+  id: InnerOrder
+  name: InnerOrder
+  personalForUserId: InnerOrder
+  updatedAt: InnerOrder
+}
+
+type Query {
+  """API tokens for the given org. Caller must be a member of that org."""
+  apiTokens(orgId: String!): [ApiToken!]!
+  magicLink(limit: Int, offset: Int, orderBy: MagicLinkOrderBy, where: MagicLinkFilters): [MagicLink!]!
+  magicLinkSingle(offset: Int, orderBy: MagicLinkOrderBy, where: MagicLinkFilters): MagicLink
+
+  """Returns the currently authenticated user."""
+  me: User
+
+  """Personal notes owned by the authenticated user (excludes org notes)."""
+  myNotes: [Note!]!
+
+  """Orgs the authenticated user is a member of."""
+  myOrgs: [Org!]!
+  note(limit: Int, offset: Int, orderBy: NoteOrderBy, where: NoteFilters): [Note!]!
+  noteSingle(offset: Int, orderBy: NoteOrderBy, where: NoteFilters): Note
+  org(limit: Int, offset: Int, orderBy: OrgOrderBy, where: OrgFilters): [Org!]!
+  orgMember(limit: Int, offset: Int, orderBy: OrgMemberOrderBy, where: OrgMemberFilters): [OrgMember!]!
+  orgMemberSingle(offset: Int, orderBy: OrgMemberOrderBy, where: OrgMemberFilters): OrgMember
+  orgSingle(offset: Int, orderBy: OrgOrderBy, where: OrgFilters): Org
+  user(limit: Int, offset: Int, orderBy: UserOrderBy, where: UserFilters): [User!]!
+  userSingle(offset: Int, orderBy: UserOrderBy, where: UserFilters): User
+}
+
+type RequestMagicLinkResult {
+  """
+  In development only: the full magic-link URL so the client can bypass email.
+  """
+  devLink: String
+
+  """Always true on success."""
+  success: Boolean!
+
+  """With AUTH_MAGIC_LINK=false: a session token, as from verifyMagicLink."""
+  token: String
+
+  """With AUTH_MAGIC_LINK=false: the signed-in user."""
+  user: User
+}
+
+input StringFilter {
+  OR: [StringFilterOr!]
+  eq: String
+  gt: String
+  gte: String
+  ilike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+  isNotNull: Boolean
+  isNull: Boolean
+  like: String
+  lt: String
+  lte: String
+  ne: String
+  notIlike: String
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  notLike: String
+}
+
+input StringFilterOr {
+  eq: String
+  gt: String
+  gte: String
+  ilike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+  isNotNull: Boolean
+  isNull: Boolean
+  like: String
+  lt: String
+  lte: String
+  ne: String
+  notIlike: String
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  notLike: String
+}
+
+input UpdateMagicLinkInput {
+  """DateTime"""
+  createdAt: DateTime
+  email: String
+
+  """DateTime"""
+  expiresAt: DateTime
+  id: String
+  token: String
+  used: Boolean
+}
+
+input UpdateNoteInput {
+  content: String
+
+  """DateTime"""
+  createdAt: DateTime
+  id: String
+  orgId: String
+  title: String
+
+  """DateTime"""
+  updatedAt: DateTime
+  userId: String
+}
+
+input UpdateOrgInput {
+  """DateTime"""
+  createdAt: DateTime
+  id: String
+  name: String
+  personalForUserId: String
+
+  """DateTime"""
+  updatedAt: DateTime
+}
+
+input UpdateOrgMemberInput {
+  """DateTime"""
+  createdAt: DateTime
+  orgId: String
+  role: OrgMembersRoleEnum
+  userId: String
+}
+
+input UpdateUserInput {
+  """DateTime"""
+  createdAt: DateTime
+  email: String
+  id: String
+
+  """DateTime"""
+  updatedAt: DateTime
+}
+
+type User {
+  """DateTime"""
+  createdAt: DateTime!
+  email: String!
+  id: String!
+  notes(limit: Int, offset: Int, orderBy: NoteOrderBy, where: NoteFilters): [Note!]!
+  orgMemberships(limit: Int, offset: Int, orderBy: OrgMemberOrderBy, where: OrgMemberFilters): [OrgMember!]!
+  personalOrg(where: OrgFilters): Org
+
+  """DateTime"""
+  updatedAt: DateTime!
+}
+
+input UserFilters {
+  OR: [UserFiltersOr!]
+  createdAt: DateTimeFilter
+  email: StringFilter
+  id: IdFilter
+  updatedAt: DateTimeFilter
+}
+
+input UserFiltersOr {
+  createdAt: DateTimeFilter
+  email: StringFilter
+  id: IdFilter
+  updatedAt: DateTimeFilter
+}
+
+input UserOrderBy {
+  createdAt: InnerOrder
+  email: InnerOrder
+  id: InnerOrder
+  updatedAt: InnerOrder
+}

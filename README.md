@@ -25,9 +25,10 @@ npm install
 npm run dev             # http://localhost:3000 (listens on 0.0.0.0)
 ```
 
-Apps that are down (or refuse introspection) are skipped with a warning and
-the rest still work; `POST /reload` (or the ⟲ button on the page) re-introspects
-without a restart.
+Apps that are down are skipped with a warning and the rest still work; the ⟲
+button on the page (the `reloadPlugins` mutation) re-loads every schema without
+a restart. An app that refuses introspection is stitched from its committed
+snapshot in `schemas/` instead — see below.
 
 ## Running the whole stack
 
@@ -37,7 +38,7 @@ Postgres** — each app gets its own role and database inside it
 and its `DATABASE_URL` differs only in host.
 
 ```bash
-cp .env.example .env      # set JWT_SECRET and PUBLIC_HOST
+cp .env.example .env      # set AUTOCAL_JWT_SECRET, JWT_SECRET and PUBLIC_HOST
 docker compose -f docker-compose.stack.yml up --build
 ```
 
@@ -63,13 +64,17 @@ no manual migration step.
 
 Two things to know before running it:
 
-- **Introspection.** auto-cal, notes and philotes serve GraphQL through Apollo,
-  which refuses introspection under `NODE_ENV=production` and so cannot be
-  stitched at all. Since no app repo changes to appear on the dashboard, the
-  stack leaves `NODE_ENV` empty for them. That is not free — the header of
-  `docker-compose.stack.yml` lists exactly what each one trades, and
-  `<APP>_NODE_ENV=production` takes any of them back at the cost of dropping
-  off the dashboard.
+- **Schema snapshots.** Every app runs with `NODE_ENV=production`. auto-cal,
+  notes and philotes serve GraphQL through Apollo, which then refuses
+  introspection, so the gateway stitches them from `schemas/<name>.graphql`
+  (baked into the image) and still runs every query against the live app.
+  Keep a snapshot in step with the image tag it describes:
+  `npm run schemas:snapshot -- autocal` against a dev instance (NODE_ENV
+  unset) of the same version. The `plugins` query reports `schemaSource`.
+- **Sign-in.** Each app signs its own JWTs, so each gets its own secret. With
+  `AUTOCAL_AUTH_MAGIC_LINK=false` (secure local networks only) the ⚙ panel's
+  email sign-in gets a token from that app directly; otherwise paste an API
+  key.
 - **Remote daemons.** If `docker context ls` shows a remote daemon, published
   ports land on *that* host — set `PUBLIC_HOST` to it. Nothing in the stack is
   bind-mounted for the same reason (a bind mount would resolve on the daemon's
@@ -96,7 +101,10 @@ bearer session token, and renaming it would strip the header that verifies it.
 
 Mint a token in each app (auto-cal API key, notes `cet_` token, philotes API
 key, eunomia device key via `registerDevice`) and put it in `.env` or the ⚙
-panel.
+panel. Or use the ⚙ panel's **Sign in** with an email: it calls each app's
+stitched `requestMagicLink` for auto-cal and notes, and one running with
+`AUTH_MAGIC_LINK=false` returns a session JWT that is stored as that app's
+token (`DIRECT_SIGN_IN` in `app/dashboard.js`).
 
 ## Adding a plugin
 
@@ -125,8 +133,10 @@ runnable minimal example.
 
 ```
 server/src/plugins.ts   plugin registry + auth header resolution
-server/src/gateway.ts   introspect → prefix → stitch; /reload support
-server/src/http.ts      express: /graphql (yoga), /health, /reload, static app/
+server/src/gateway.ts   introspect (or snapshot) → prefix → stitch; reloadPlugins
+server/src/http.ts      express: /graphql (yoga), /health, static app/
+server/scripts/         schemas:snapshot
+schemas/                schema snapshots for apps that refuse introspection
 server/src/index.ts     read env, load the gateway, listen
 app/                    the dashboard page (no build step)
 server/test/            unit tests + an end-to-end HTTP smoke test

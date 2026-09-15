@@ -113,5 +113,8 @@ dialog input {
   font-family: ui-monospace, monospace;
   font-size: 0.82rem;
 }
+dialog .sign-in { display: flex; gap: 0.5rem; }
+dialog .sign-in input { flex: 1; min-width: 0; }
+dialog h2 + .hint + .sign-in + .rows { margin-bottom: 1rem; }
 dialog menu { display: flex; gap: 0.5rem; justify-content: flex-end; padding: 0; margin: 1rem 0 0; }
 code { color: var(--accent); }

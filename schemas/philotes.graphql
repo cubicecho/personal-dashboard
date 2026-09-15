@@ -1,0 +1,4663 @@
+# Schema snapshot of the philotes plugin. The gateway uses it only when
+# the app refuses introspection (NODE_ENV=production). Regenerate with
+#   npm run schemas:snapshot -- philotes
+
+type Address {
+  city: String
+  country: String
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  id: UUID!
+  isPrimary: Boolean!
+  label: String
+  line1: String!
+  line2: String
+  person(where: PersonFilters): Person
+  personId: UUID!
+  postalCode: String
+  state: String
+  type: AddressTypeEnum!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+type AddressAggregate {
+  count: Int!
+  countDistinct: AddressCountDistinctAggregate
+  countNonNull: AddressCountNonNullAggregate
+  max: AddressMaxAggregate
+  min: AddressMinAggregate
+}
+
+type AddressCountDistinctAggregate {
+  city: Int!
+  country: Int!
+  createdAt: Int!
+  id: Int!
+  label: Int!
+  line1: Int!
+  line2: Int!
+  personId: Int!
+  postalCode: Int!
+  state: Int!
+  type: Int!
+  userId: Int!
+}
+
+input AddressCountDistinctHaving {
+  city: AggregateNumberFilter
+  country: AggregateNumberFilter
+  createdAt: AggregateNumberFilter
+  id: AggregateNumberFilter
+  label: AggregateNumberFilter
+  line1: AggregateNumberFilter
+  line2: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  postalCode: AggregateNumberFilter
+  state: AggregateNumberFilter
+  type: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+type AddressCountNonNullAggregate {
+  city: Int!
+  country: Int!
+  createdAt: Int!
+  id: Int!
+  isPrimary: Int!
+  label: Int!
+  line1: Int!
+  line2: Int!
+  personId: Int!
+  postalCode: Int!
+  state: Int!
+  type: Int!
+  userId: Int!
+}
+
+input AddressCountNonNullHaving {
+  city: AggregateNumberFilter
+  country: AggregateNumberFilter
+  createdAt: AggregateNumberFilter
+  id: AggregateNumberFilter
+  isPrimary: AggregateNumberFilter
+  label: AggregateNumberFilter
+  line1: AggregateNumberFilter
+  line2: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  postalCode: AggregateNumberFilter
+  state: AggregateNumberFilter
+  type: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+"""Columns of Address that a query can be made distinct on"""
+enum AddressDistinctColumn {
+  city
+  country
+  createdAt
+  id
+  isPrimary
+  label
+  line1
+  line2
+  personId
+  postalCode
+  state
+  type
+  userId
+}
+
+input AddressFilters {
+  """Every branch matches"""
+  AND: [AddressFilters!]
+
+  """Negates the nested filters"""
+  NOT: AddressFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [AddressFilters!]
+  city: StringFilter
+  country: StringFilter
+  createdAt: DateTimeFilter
+  id: IdFilter
+  isPrimary: BooleanFilter
+  label: StringFilter
+  line1: StringFilter
+  line2: StringFilter
+
+  """Matches rows whose person matches these filters"""
+  person: PersonFilters
+  personId: IdFilter
+  postalCode: StringFilter
+  state: StringFilter
+  type: AddressTypeEnumFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+type AddressGroupBy {
+  count: Int!
+  countDistinct: AddressCountDistinctAggregate
+  countNonNull: AddressCountNonNullAggregate
+  group: AddressGroupKeys!
+  max: AddressMaxAggregate
+  min: AddressMinAggregate
+}
+
+"""Columns of Address that a query can group by"""
+enum AddressGroupByColumn {
+  city
+  country
+  createdAt
+  id
+  isPrimary
+  label
+  line1
+  line2
+  personId
+  postalCode
+  state
+  type
+  userId
+}
+
+"""
+The grouped column values of one Address group. A column the query did not group by is null.
+"""
+type AddressGroupKeys {
+  city: String
+  country: String
+  createdAt: DateTime
+  id: UUID
+  isPrimary: Boolean
+  label: String
+  line1: String
+  line2: String
+  personId: UUID
+  postalCode: String
+  state: String
+  type: AddressTypeEnum
+  userId: UUID
+}
+
+"""Filters Address groups by their aggregated values"""
+input AddressHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: AddressCountDistinctHaving
+  countNonNull: AddressCountNonNullHaving
+}
+
+input AddressListRelationFilter {
+  """Every related row matches"""
+  every: AddressFilters
+
+  """No related row matches"""
+  none: AddressFilters
+
+  """At least one related row matches"""
+  some: AddressFilters
+}
+
+type AddressMaxAggregate {
+  city: String
+  country: String
+  createdAt: DateTime
+  id: UUID
+  label: String
+  line1: String
+  line2: String
+  personId: UUID
+  postalCode: String
+  state: String
+  type: AddressTypeEnum
+  userId: UUID
+}
+
+type AddressMinAggregate {
+  city: String
+  country: String
+  createdAt: DateTime
+  id: UUID
+  label: String
+  line1: String
+  line2: String
+  personId: UUID
+  postalCode: String
+  state: String
+  type: AddressTypeEnum
+  userId: UUID
+}
+
+input AddressOrderBy {
+  city: InnerOrder
+  country: InnerOrder
+  createdAt: InnerOrder
+  id: InnerOrder
+  isPrimary: InnerOrder
+  label: InnerOrder
+  line1: InnerOrder
+  line2: InnerOrder
+
+  """Order by columns of the related person row"""
+  person: PersonOrderBy
+  personId: InnerOrder
+  postalCode: InnerOrder
+  state: InnerOrder
+  type: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+enum AddressTypeEnum {
+  """Value: home"""
+  home
+
+  """Value: other"""
+  other
+
+  """Value: work"""
+  work
+}
+
+input AddressTypeEnumFilter {
+  """Every branch matches"""
+  AND: [AddressTypeEnumFilter!]
+
+  """Negates the nested operators"""
+  NOT: AddressTypeEnumFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [AddressTypeEnumFilter!]
+
+  """
+  Matches values containing the given string. `%`, `_` and `\` are matched literally.
+  """
+  contains: String
+
+  """
+  Matches values ending with the given string. `%`, `_` and `\` are matched literally.
+  """
+  endsWith: String
+
+  """Equal to"""
+  eq: AddressTypeEnum
+
+  """Greater than"""
+  gt: AddressTypeEnum
+
+  """Greater than or equal to"""
+  gte: AddressTypeEnum
+
+  """Case-insensitive `contains`."""
+  iContains: String
+
+  """Case-insensitive `endsWith`."""
+  iEndsWith: String
+
+  """Case-insensitive `startsWith`."""
+  iStartsWith: String
+  ilike: String
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [AddressTypeEnum!]
+
+  """
+  When true, every comparison operator in this object matches case-insensitively — `eq`, `ne`, the ordering operators, `inArray`/`notInArray` and the pattern operators all compare `lower(column)` against `lower(operand)`. Applies only to the operators beside it; a nested `AND`/`OR`/`NOT` branch sets its own.
+  """
+  insensitive: Boolean
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+  like: String
+
+  """Less than"""
+  lt: AddressTypeEnum
+
+  """Less than or equal to"""
+  lte: AddressTypeEnum
+
+  """Not equal to"""
+  ne: AddressTypeEnum
+  notIlike: String
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [AddressTypeEnum!]
+  notLike: String
+
+  """
+  Matches values starting with the given string. `%`, `_` and `\` are matched literally.
+  """
+  startsWith: String
+}
+
+"""
+Compares an aggregated value. Several operators in one filter are ANDed together.
+"""
+input AggregateNumberFilter {
+  eq: Float
+  gt: Float
+  gte: Float
+  lt: Float
+  lte: Float
+  ne: Float
+}
+
+type ApiKeyRecord {
+  createdAt: String!
+  expiresAt: String
+  id: ID!
+  keyPrefix: String!
+  lastUsedAt: String
+  name: String!
+}
+
+type AuthPayload {
+  token: String!
+  userId: ID!
+}
+
+input BooleanFilter {
+  """Every branch matches"""
+  AND: [BooleanFilter!]
+
+  """Negates the nested operators"""
+  NOT: BooleanFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [BooleanFilter!]
+
+  """
+  Matches values containing the given string. `%`, `_` and `\` are matched literally.
+  """
+  contains: String
+
+  """
+  Matches values ending with the given string. `%`, `_` and `\` are matched literally.
+  """
+  endsWith: String
+
+  """Equal to"""
+  eq: Boolean
+
+  """Greater than"""
+  gt: Boolean
+
+  """Greater than or equal to"""
+  gte: Boolean
+
+  """Case-insensitive `contains`."""
+  iContains: String
+
+  """Case-insensitive `endsWith`."""
+  iEndsWith: String
+
+  """Case-insensitive `startsWith`."""
+  iStartsWith: String
+  ilike: String
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [Boolean!]
+
+  """
+  When true, every comparison operator in this object matches case-insensitively — `eq`, `ne`, the ordering operators, `inArray`/`notInArray` and the pattern operators all compare `lower(column)` against `lower(operand)`. Applies only to the operators beside it; a nested `AND`/`OR`/`NOT` branch sets its own.
+  """
+  insensitive: Boolean
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+  like: String
+
+  """Less than"""
+  lt: Boolean
+
+  """Less than or equal to"""
+  lte: Boolean
+
+  """Not equal to"""
+  ne: Boolean
+  notIlike: String
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [Boolean!]
+  notLike: String
+
+  """
+  Matches values starting with the given string. `%`, `_` and `\` are matched literally.
+  """
+  startsWith: String
+}
+
+type ContactInfo {
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  id: UUID!
+  isPrimary: Boolean!
+  label: String
+  person(where: PersonFilters): Person
+  personId: UUID!
+  type: ContactTypeEnum!
+  user(where: UserFilters): User
+  userId: UUID!
+  value: String!
+}
+
+type ContactInfoAggregate {
+  count: Int!
+  countDistinct: ContactInfoCountDistinctAggregate
+  countNonNull: ContactInfoCountNonNullAggregate
+  max: ContactInfoMaxAggregate
+  min: ContactInfoMinAggregate
+}
+
+type ContactInfoCountDistinctAggregate {
+  createdAt: Int!
+  id: Int!
+  label: Int!
+  personId: Int!
+  type: Int!
+  userId: Int!
+  value: Int!
+}
+
+input ContactInfoCountDistinctHaving {
+  createdAt: AggregateNumberFilter
+  id: AggregateNumberFilter
+  label: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  type: AggregateNumberFilter
+  userId: AggregateNumberFilter
+  value: AggregateNumberFilter
+}
+
+type ContactInfoCountNonNullAggregate {
+  createdAt: Int!
+  id: Int!
+  isPrimary: Int!
+  label: Int!
+  personId: Int!
+  type: Int!
+  userId: Int!
+  value: Int!
+}
+
+input ContactInfoCountNonNullHaving {
+  createdAt: AggregateNumberFilter
+  id: AggregateNumberFilter
+  isPrimary: AggregateNumberFilter
+  label: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  type: AggregateNumberFilter
+  userId: AggregateNumberFilter
+  value: AggregateNumberFilter
+}
+
+"""Columns of ContactInfo that a query can be made distinct on"""
+enum ContactInfoDistinctColumn {
+  createdAt
+  id
+  isPrimary
+  label
+  personId
+  type
+  userId
+  value
+}
+
+input ContactInfoFilters {
+  """Every branch matches"""
+  AND: [ContactInfoFilters!]
+
+  """Negates the nested filters"""
+  NOT: ContactInfoFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [ContactInfoFilters!]
+  createdAt: DateTimeFilter
+  id: IdFilter
+  isPrimary: BooleanFilter
+  label: StringFilter
+
+  """Matches rows whose person matches these filters"""
+  person: PersonFilters
+  personId: IdFilter
+  type: ContactTypeEnumFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+  value: StringFilter
+}
+
+type ContactInfoGroupBy {
+  count: Int!
+  countDistinct: ContactInfoCountDistinctAggregate
+  countNonNull: ContactInfoCountNonNullAggregate
+  group: ContactInfoGroupKeys!
+  max: ContactInfoMaxAggregate
+  min: ContactInfoMinAggregate
+}
+
+"""Columns of ContactInfo that a query can group by"""
+enum ContactInfoGroupByColumn {
+  createdAt
+  id
+  isPrimary
+  label
+  personId
+  type
+  userId
+  value
+}
+
+"""
+The grouped column values of one ContactInfo group. A column the query did not group by is null.
+"""
+type ContactInfoGroupKeys {
+  createdAt: DateTime
+  id: UUID
+  isPrimary: Boolean
+  label: String
+  personId: UUID
+  type: ContactTypeEnum
+  userId: UUID
+  value: String
+}
+
+"""Filters ContactInfo groups by their aggregated values"""
+input ContactInfoHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: ContactInfoCountDistinctHaving
+  countNonNull: ContactInfoCountNonNullHaving
+}
+
+input ContactInfoListRelationFilter {
+  """Every related row matches"""
+  every: ContactInfoFilters
+
+  """No related row matches"""
+  none: ContactInfoFilters
+
+  """At least one related row matches"""
+  some: ContactInfoFilters
+}
+
+type ContactInfoMaxAggregate {
+  createdAt: DateTime
+  id: UUID
+  label: String
+  personId: UUID
+  type: ContactTypeEnum
+  userId: UUID
+  value: String
+}
+
+type ContactInfoMinAggregate {
+  createdAt: DateTime
+  id: UUID
+  label: String
+  personId: UUID
+  type: ContactTypeEnum
+  userId: UUID
+  value: String
+}
+
+input ContactInfoOrderBy {
+  createdAt: InnerOrder
+  id: InnerOrder
+  isPrimary: InnerOrder
+  label: InnerOrder
+
+  """Order by columns of the related person row"""
+  person: PersonOrderBy
+  personId: InnerOrder
+  type: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+  value: InnerOrder
+}
+
+enum ContactTypeEnum {
+  """Value: email"""
+  email
+
+  """Value: instagram"""
+  instagram
+
+  """Value: linkedin"""
+  linkedin
+
+  """Value: mobile"""
+  mobile
+
+  """Value: other"""
+  other
+
+  """Value: phone"""
+  phone
+
+  """Value: twitter"""
+  twitter
+
+  """Value: website"""
+  website
+}
+
+input ContactTypeEnumFilter {
+  """Every branch matches"""
+  AND: [ContactTypeEnumFilter!]
+
+  """Negates the nested operators"""
+  NOT: ContactTypeEnumFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [ContactTypeEnumFilter!]
+
+  """
+  Matches values containing the given string. `%`, `_` and `\` are matched literally.
+  """
+  contains: String
+
+  """
+  Matches values ending with the given string. `%`, `_` and `\` are matched literally.
+  """
+  endsWith: String
+
+  """Equal to"""
+  eq: ContactTypeEnum
+
+  """Greater than"""
+  gt: ContactTypeEnum
+
+  """Greater than or equal to"""
+  gte: ContactTypeEnum
+
+  """Case-insensitive `contains`."""
+  iContains: String
+
+  """Case-insensitive `endsWith`."""
+  iEndsWith: String
+
+  """Case-insensitive `startsWith`."""
+  iStartsWith: String
+  ilike: String
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [ContactTypeEnum!]
+
+  """
+  When true, every comparison operator in this object matches case-insensitively — `eq`, `ne`, the ordering operators, `inArray`/`notInArray` and the pattern operators all compare `lower(column)` against `lower(operand)`. Applies only to the operators beside it; a nested `AND`/`OR`/`NOT` branch sets its own.
+  """
+  insensitive: Boolean
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+  like: String
+
+  """Less than"""
+  lt: ContactTypeEnum
+
+  """Less than or equal to"""
+  lte: ContactTypeEnum
+
+  """Not equal to"""
+  ne: ContactTypeEnum
+  notIlike: String
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [ContactTypeEnum!]
+  notLike: String
+
+  """
+  Matches values starting with the given string. `%`, `_` and `\` are matched literally.
+  """
+  startsWith: String
+}
+
+input CreateAddressInput {
+  city: String
+  country: String
+  createdAt: DateTime
+  id: UUID
+  isPrimary: Boolean
+  label: String
+  line1: String!
+  line2: String
+  personId: UUID!
+  postalCode: String
+  state: String
+  type: AddressTypeEnum!
+}
+
+input CreateApiKeyInput {
+  expiresAt: String
+  name: String!
+}
+
+type CreateApiKeyResult {
+  apiKey: ApiKeyRecord!
+  token: String!
+}
+
+input CreateContactInfoInput {
+  createdAt: DateTime
+  id: UUID
+  isPrimary: Boolean
+  label: String
+  personId: UUID!
+  type: ContactTypeEnum!
+  value: String!
+}
+
+input CreateImportantDateInput {
+  date: String!
+  description: String
+  id: UUID
+  milestoneType: ImportantDatesMilestoneTypeEnum
+  name: String!
+  personId: UUID!
+  recurrence: String
+}
+
+input CreateImportantDateTagInput {
+  importantDateId: UUID!
+  labelId: UUID!
+}
+
+input CreateInteractionInput {
+  channel: String!
+  id: UUID
+  note: String
+  occurredAt: DateTime
+  personId: UUID!
+  sentiment: String
+}
+
+input CreateInteractionTagInput {
+  interactionId: UUID!
+  labelId: UUID!
+}
+
+input CreateLabelInput {
+  color: String!
+  id: UUID
+  label: String!
+}
+
+input CreateNoteInput {
+  body: String!
+  id: UUID
+  personId: UUID
+}
+
+input CreateNoteMentionInput {
+  mentionedPersonId: UUID!
+  noteId: UUID!
+}
+
+input CreateNoteTagInput {
+  labelId: UUID!
+  noteId: UUID!
+}
+
+input CreatePersonInput {
+  createdAt: DateTime
+  email: String
+  firstName: String!
+  id: UUID
+  lastName: String!
+  updatedAt: DateTime
+}
+
+input CreatePersonLabelInput {
+  labelId: UUID!
+  personId: UUID!
+}
+
+input CreatePersonRelationshipInput {
+  fromPersonId: UUID!
+  id: UUID
+  toPersonId: UUID!
+  type: String!
+}
+
+input CreateRelationshipTypeInput {
+  createdAt: DateTime
+  id: UUID
+  name: String!
+}
+
+input CreateTaskInput {
+  completedAt: DateTime
+  createdAt: DateTime
+  dueAt: DateTime
+  id: UUID
+  notes: String
+  personId: UUID!
+  title: String!
+}
+
+input CreateUserPersonInput {
+  avatarPath: String
+  contactFrequency: String
+  createdAt: DateTime
+  firstMetDate: String
+  howWeMet: String
+  personId: UUID!
+}
+
+"""
+A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar Date
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+input DateTimeFilter {
+  """Every branch matches"""
+  AND: [DateTimeFilter!]
+
+  """Negates the nested operators"""
+  NOT: DateTimeFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [DateTimeFilter!]
+
+  """
+  Matches values containing the given string. `%`, `_` and `\` are matched literally.
+  """
+  contains: String
+
+  """
+  Matches values ending with the given string. `%`, `_` and `\` are matched literally.
+  """
+  endsWith: String
+
+  """Equal to"""
+  eq: DateTime
+
+  """Greater than"""
+  gt: DateTime
+
+  """Greater than or equal to"""
+  gte: DateTime
+
+  """Case-insensitive `contains`."""
+  iContains: String
+
+  """Case-insensitive `endsWith`."""
+  iEndsWith: String
+
+  """Case-insensitive `startsWith`."""
+  iStartsWith: String
+  ilike: String
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [DateTime!]
+
+  """
+  When true, every comparison operator in this object matches case-insensitively — `eq`, `ne`, the ordering operators, `inArray`/`notInArray` and the pattern operators all compare `lower(column)` against `lower(operand)`. Applies only to the operators beside it; a nested `AND`/`OR`/`NOT` branch sets its own.
+  """
+  insensitive: Boolean
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+  like: String
+
+  """Less than"""
+  lt: DateTime
+
+  """Less than or equal to"""
+  lte: DateTime
+
+  """Not equal to"""
+  ne: DateTime
+  notIlike: String
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [DateTime!]
+  notLike: String
+
+  """
+  Matches values starting with the given string. `%`, `_` and `\` are matched literally.
+  """
+  startsWith: String
+}
+
+input IdFilter {
+  """Every branch matches"""
+  AND: [IdFilter!]
+
+  """Negates the nested operators"""
+  NOT: IdFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [IdFilter!]
+
+  """Equal to"""
+  eq: UUID
+
+  """Greater than"""
+  gt: UUID
+
+  """Greater than or equal to"""
+  gte: UUID
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [UUID!]
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+
+  """Less than"""
+  lt: UUID
+
+  """Less than or equal to"""
+  lte: UUID
+
+  """Not equal to"""
+  ne: UUID
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [UUID!]
+}
+
+type ImportContactsResult {
+  errors: [String!]!
+  imported: Int!
+  merged: Int!
+  skipped: Int!
+}
+
+type ImportantDate {
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  date: Date!
+  description: String
+  id: UUID!
+  labels(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [LabelDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: LabelOrderBy
+    where: LabelFilters
+  ): [Label!]!
+  labelsAggregate(where: LabelFilters): LabelAggregate!
+  milestoneType: ImportantDatesMilestoneTypeEnum
+  name: String!
+  person(where: PersonFilters): Person
+  personId: UUID!
+  recurrence: String
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+type ImportantDateAggregate {
+  count: Int!
+  countDistinct: ImportantDateCountDistinctAggregate
+  countNonNull: ImportantDateCountNonNullAggregate
+  max: ImportantDateMaxAggregate
+  min: ImportantDateMinAggregate
+}
+
+type ImportantDateCountDistinctAggregate {
+  date: Int!
+  description: Int!
+  id: Int!
+  milestoneType: Int!
+  name: Int!
+  personId: Int!
+  recurrence: Int!
+  userId: Int!
+}
+
+input ImportantDateCountDistinctHaving {
+  date: AggregateNumberFilter
+  description: AggregateNumberFilter
+  id: AggregateNumberFilter
+  milestoneType: AggregateNumberFilter
+  name: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  recurrence: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+type ImportantDateCountNonNullAggregate {
+  date: Int!
+  description: Int!
+  id: Int!
+  milestoneType: Int!
+  name: Int!
+  personId: Int!
+  recurrence: Int!
+  userId: Int!
+}
+
+input ImportantDateCountNonNullHaving {
+  date: AggregateNumberFilter
+  description: AggregateNumberFilter
+  id: AggregateNumberFilter
+  milestoneType: AggregateNumberFilter
+  name: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  recurrence: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+"""Columns of ImportantDate that a query can be made distinct on"""
+enum ImportantDateDistinctColumn {
+  date
+  description
+  id
+  milestoneType
+  name
+  personId
+  recurrence
+  userId
+}
+
+input ImportantDateFilters {
+  """Every branch matches"""
+  AND: [ImportantDateFilters!]
+
+  """Negates the nested filters"""
+  NOT: ImportantDateFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [ImportantDateFilters!]
+  date: StringFilter
+  description: StringFilter
+  id: IdFilter
+  labels: LabelListRelationFilter
+  milestoneType: ImportantDatesMilestoneTypeEnumFilter
+  name: StringFilter
+
+  """Matches rows whose person matches these filters"""
+  person: PersonFilters
+  personId: IdFilter
+  recurrence: StringFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+type ImportantDateGroupBy {
+  count: Int!
+  countDistinct: ImportantDateCountDistinctAggregate
+  countNonNull: ImportantDateCountNonNullAggregate
+  group: ImportantDateGroupKeys!
+  max: ImportantDateMaxAggregate
+  min: ImportantDateMinAggregate
+}
+
+"""Columns of ImportantDate that a query can group by"""
+enum ImportantDateGroupByColumn {
+  date
+  description
+  id
+  milestoneType
+  name
+  personId
+  recurrence
+  userId
+}
+
+"""
+The grouped column values of one ImportantDate group. A column the query did not group by is null.
+"""
+type ImportantDateGroupKeys {
+  date: Date
+  description: String
+  id: UUID
+  milestoneType: ImportantDatesMilestoneTypeEnum
+  name: String
+  personId: UUID
+  recurrence: String
+  userId: UUID
+}
+
+"""Filters ImportantDate groups by their aggregated values"""
+input ImportantDateHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: ImportantDateCountDistinctHaving
+  countNonNull: ImportantDateCountNonNullHaving
+}
+
+input ImportantDateListRelationFilter {
+  """Every related row matches"""
+  every: ImportantDateFilters
+
+  """No related row matches"""
+  none: ImportantDateFilters
+
+  """At least one related row matches"""
+  some: ImportantDateFilters
+}
+
+type ImportantDateMaxAggregate {
+  date: Date
+  description: String
+  id: UUID
+  milestoneType: ImportantDatesMilestoneTypeEnum
+  name: String
+  personId: UUID
+  recurrence: String
+  userId: UUID
+}
+
+type ImportantDateMinAggregate {
+  date: Date
+  description: String
+  id: UUID
+  milestoneType: ImportantDatesMilestoneTypeEnum
+  name: String
+  personId: UUID
+  recurrence: String
+  userId: UUID
+}
+
+input ImportantDateOrderBy {
+  date: InnerOrder
+  description: InnerOrder
+  id: InnerOrder
+  milestoneType: InnerOrder
+  name: InnerOrder
+
+  """Order by columns of the related person row"""
+  person: PersonOrderBy
+  personId: InnerOrder
+  recurrence: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type ImportantDateTag {
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  importantDateId: UUID!
+  labelId: UUID!
+}
+
+type ImportantDateTagAggregate {
+  count: Int!
+  countDistinct: ImportantDateTagCountDistinctAggregate
+  countNonNull: ImportantDateTagCountNonNullAggregate
+  max: ImportantDateTagMaxAggregate
+  min: ImportantDateTagMinAggregate
+}
+
+type ImportantDateTagCountDistinctAggregate {
+  importantDateId: Int!
+  labelId: Int!
+}
+
+input ImportantDateTagCountDistinctHaving {
+  importantDateId: AggregateNumberFilter
+  labelId: AggregateNumberFilter
+}
+
+type ImportantDateTagCountNonNullAggregate {
+  importantDateId: Int!
+  labelId: Int!
+}
+
+input ImportantDateTagCountNonNullHaving {
+  importantDateId: AggregateNumberFilter
+  labelId: AggregateNumberFilter
+}
+
+"""Columns of ImportantDateTag that a query can be made distinct on"""
+enum ImportantDateTagDistinctColumn {
+  importantDateId
+  labelId
+}
+
+input ImportantDateTagFilters {
+  """Every branch matches"""
+  AND: [ImportantDateTagFilters!]
+
+  """Negates the nested filters"""
+  NOT: ImportantDateTagFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [ImportantDateTagFilters!]
+  importantDateId: IdFilter
+  labelId: IdFilter
+}
+
+type ImportantDateTagGroupBy {
+  count: Int!
+  countDistinct: ImportantDateTagCountDistinctAggregate
+  countNonNull: ImportantDateTagCountNonNullAggregate
+  group: ImportantDateTagGroupKeys!
+  max: ImportantDateTagMaxAggregate
+  min: ImportantDateTagMinAggregate
+}
+
+"""Columns of ImportantDateTag that a query can group by"""
+enum ImportantDateTagGroupByColumn {
+  importantDateId
+  labelId
+}
+
+"""
+The grouped column values of one ImportantDateTag group. A column the query did not group by is null.
+"""
+type ImportantDateTagGroupKeys {
+  importantDateId: UUID
+  labelId: UUID
+}
+
+"""Filters ImportantDateTag groups by their aggregated values"""
+input ImportantDateTagHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: ImportantDateTagCountDistinctHaving
+  countNonNull: ImportantDateTagCountNonNullHaving
+}
+
+type ImportantDateTagMaxAggregate {
+  importantDateId: UUID
+  labelId: UUID
+}
+
+type ImportantDateTagMinAggregate {
+  importantDateId: UUID
+  labelId: UUID
+}
+
+input ImportantDateTagOrderBy {
+  importantDateId: InnerOrder
+  labelId: InnerOrder
+}
+
+enum ImportantDatesMilestoneTypeEnum {
+  """Value: divorced"""
+  divorced
+
+  """Value: graduation"""
+  graduation
+
+  """Value: health_event"""
+  health_event
+
+  """Value: loss"""
+  loss
+
+  """Value: married"""
+  married
+
+  """Value: moved"""
+  moved
+
+  """Value: new_baby"""
+  new_baby
+
+  """Value: new_job"""
+  new_job
+
+  """Value: other"""
+  other
+
+  """Value: promotion"""
+  promotion
+
+  """Value: retired"""
+  retired
+}
+
+input ImportantDatesMilestoneTypeEnumFilter {
+  """Every branch matches"""
+  AND: [ImportantDatesMilestoneTypeEnumFilter!]
+
+  """Negates the nested operators"""
+  NOT: ImportantDatesMilestoneTypeEnumFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [ImportantDatesMilestoneTypeEnumFilter!]
+
+  """
+  Matches values containing the given string. `%`, `_` and `\` are matched literally.
+  """
+  contains: String
+
+  """
+  Matches values ending with the given string. `%`, `_` and `\` are matched literally.
+  """
+  endsWith: String
+
+  """Equal to"""
+  eq: ImportantDatesMilestoneTypeEnum
+
+  """Greater than"""
+  gt: ImportantDatesMilestoneTypeEnum
+
+  """Greater than or equal to"""
+  gte: ImportantDatesMilestoneTypeEnum
+
+  """Case-insensitive `contains`."""
+  iContains: String
+
+  """Case-insensitive `endsWith`."""
+  iEndsWith: String
+
+  """Case-insensitive `startsWith`."""
+  iStartsWith: String
+  ilike: String
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [ImportantDatesMilestoneTypeEnum!]
+
+  """
+  When true, every comparison operator in this object matches case-insensitively — `eq`, `ne`, the ordering operators, `inArray`/`notInArray` and the pattern operators all compare `lower(column)` against `lower(operand)`. Applies only to the operators beside it; a nested `AND`/`OR`/`NOT` branch sets its own.
+  """
+  insensitive: Boolean
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+  like: String
+
+  """Less than"""
+  lt: ImportantDatesMilestoneTypeEnum
+
+  """Less than or equal to"""
+  lte: ImportantDatesMilestoneTypeEnum
+
+  """Not equal to"""
+  ne: ImportantDatesMilestoneTypeEnum
+  notIlike: String
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [ImportantDatesMilestoneTypeEnum!]
+  notLike: String
+
+  """
+  Matches values starting with the given string. `%`, `_` and `\` are matched literally.
+  """
+  startsWith: String
+}
+
+input InnerOrder {
+  direction: OrderDirection!
+
+  """
+  Sort by this column's position in the `inArray` list the same request's `where` gives it, rather than by the column's own value — `direction: asc` keeps the list's order, `desc` reverses it. Requires an `inArray` filter on the same column at the top level of `where`, and cannot be combined with `after` or `distinct`.
+  """
+  matchFilterOrder: Boolean
+
+  """
+  Where NULL values sort. Defaults to the database's own rule (PostgreSQL: last on asc, first on desc; MySQL/SQLite: first on asc, last on desc)
+  """
+  nulls: OrderNulls
+
+  """Priority of current field"""
+  priority: Int!
+}
+
+type Interaction {
+  channel: String!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  id: UUID!
+  labels(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [LabelDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: LabelOrderBy
+    where: LabelFilters
+  ): [Label!]!
+  labelsAggregate(where: LabelFilters): LabelAggregate!
+  note: String
+  occurredAt: DateTime!
+  person(where: PersonFilters): Person
+  personId: UUID!
+  sentiment: String
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+type InteractionAggregate {
+  count: Int!
+  countDistinct: InteractionCountDistinctAggregate
+  countNonNull: InteractionCountNonNullAggregate
+  max: InteractionMaxAggregate
+  min: InteractionMinAggregate
+}
+
+type InteractionCountDistinctAggregate {
+  channel: Int!
+  id: Int!
+  note: Int!
+  occurredAt: Int!
+  personId: Int!
+  sentiment: Int!
+  userId: Int!
+}
+
+input InteractionCountDistinctHaving {
+  channel: AggregateNumberFilter
+  id: AggregateNumberFilter
+  note: AggregateNumberFilter
+  occurredAt: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  sentiment: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+type InteractionCountNonNullAggregate {
+  channel: Int!
+  id: Int!
+  note: Int!
+  occurredAt: Int!
+  personId: Int!
+  sentiment: Int!
+  userId: Int!
+}
+
+input InteractionCountNonNullHaving {
+  channel: AggregateNumberFilter
+  id: AggregateNumberFilter
+  note: AggregateNumberFilter
+  occurredAt: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  sentiment: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+"""Columns of Interaction that a query can be made distinct on"""
+enum InteractionDistinctColumn {
+  channel
+  id
+  note
+  occurredAt
+  personId
+  sentiment
+  userId
+}
+
+input InteractionFilters {
+  """Every branch matches"""
+  AND: [InteractionFilters!]
+
+  """Negates the nested filters"""
+  NOT: InteractionFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [InteractionFilters!]
+  channel: StringFilter
+  id: IdFilter
+  labels: LabelListRelationFilter
+  note: StringFilter
+  occurredAt: DateTimeFilter
+
+  """Matches rows whose person matches these filters"""
+  person: PersonFilters
+  personId: IdFilter
+  sentiment: StringFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+type InteractionGroupBy {
+  count: Int!
+  countDistinct: InteractionCountDistinctAggregate
+  countNonNull: InteractionCountNonNullAggregate
+  group: InteractionGroupKeys!
+  max: InteractionMaxAggregate
+  min: InteractionMinAggregate
+}
+
+"""Columns of Interaction that a query can group by"""
+enum InteractionGroupByColumn {
+  channel
+  id
+  note
+  occurredAt
+  personId
+  sentiment
+  userId
+}
+
+"""
+The grouped column values of one Interaction group. A column the query did not group by is null.
+"""
+type InteractionGroupKeys {
+  channel: String
+  id: UUID
+  note: String
+  occurredAt: DateTime
+  personId: UUID
+  sentiment: String
+  userId: UUID
+}
+
+"""Filters Interaction groups by their aggregated values"""
+input InteractionHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: InteractionCountDistinctHaving
+  countNonNull: InteractionCountNonNullHaving
+}
+
+input InteractionListRelationFilter {
+  """Every related row matches"""
+  every: InteractionFilters
+
+  """No related row matches"""
+  none: InteractionFilters
+
+  """At least one related row matches"""
+  some: InteractionFilters
+}
+
+type InteractionMaxAggregate {
+  channel: String
+  id: UUID
+  note: String
+  occurredAt: DateTime
+  personId: UUID
+  sentiment: String
+  userId: UUID
+}
+
+type InteractionMinAggregate {
+  channel: String
+  id: UUID
+  note: String
+  occurredAt: DateTime
+  personId: UUID
+  sentiment: String
+  userId: UUID
+}
+
+input InteractionOrderBy {
+  channel: InnerOrder
+  id: InnerOrder
+  note: InnerOrder
+  occurredAt: InnerOrder
+
+  """Order by columns of the related person row"""
+  person: PersonOrderBy
+  personId: InnerOrder
+  sentiment: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type InteractionTag {
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  interactionId: UUID!
+  labelId: UUID!
+}
+
+type InteractionTagAggregate {
+  count: Int!
+  countDistinct: InteractionTagCountDistinctAggregate
+  countNonNull: InteractionTagCountNonNullAggregate
+  max: InteractionTagMaxAggregate
+  min: InteractionTagMinAggregate
+}
+
+type InteractionTagCountDistinctAggregate {
+  interactionId: Int!
+  labelId: Int!
+}
+
+input InteractionTagCountDistinctHaving {
+  interactionId: AggregateNumberFilter
+  labelId: AggregateNumberFilter
+}
+
+type InteractionTagCountNonNullAggregate {
+  interactionId: Int!
+  labelId: Int!
+}
+
+input InteractionTagCountNonNullHaving {
+  interactionId: AggregateNumberFilter
+  labelId: AggregateNumberFilter
+}
+
+"""Columns of InteractionTag that a query can be made distinct on"""
+enum InteractionTagDistinctColumn {
+  interactionId
+  labelId
+}
+
+input InteractionTagFilters {
+  """Every branch matches"""
+  AND: [InteractionTagFilters!]
+
+  """Negates the nested filters"""
+  NOT: InteractionTagFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [InteractionTagFilters!]
+  interactionId: IdFilter
+  labelId: IdFilter
+}
+
+type InteractionTagGroupBy {
+  count: Int!
+  countDistinct: InteractionTagCountDistinctAggregate
+  countNonNull: InteractionTagCountNonNullAggregate
+  group: InteractionTagGroupKeys!
+  max: InteractionTagMaxAggregate
+  min: InteractionTagMinAggregate
+}
+
+"""Columns of InteractionTag that a query can group by"""
+enum InteractionTagGroupByColumn {
+  interactionId
+  labelId
+}
+
+"""
+The grouped column values of one InteractionTag group. A column the query did not group by is null.
+"""
+type InteractionTagGroupKeys {
+  interactionId: UUID
+  labelId: UUID
+}
+
+"""Filters InteractionTag groups by their aggregated values"""
+input InteractionTagHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: InteractionTagCountDistinctHaving
+  countNonNull: InteractionTagCountNonNullHaving
+}
+
+type InteractionTagMaxAggregate {
+  interactionId: UUID
+  labelId: UUID
+}
+
+type InteractionTagMinAggregate {
+  interactionId: UUID
+  labelId: UUID
+}
+
+input InteractionTagOrderBy {
+  interactionId: InnerOrder
+  labelId: InnerOrder
+}
+
+type Label {
+  color: String!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  id: UUID!
+  label: String!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+type LabelAggregate {
+  count: Int!
+  countDistinct: LabelCountDistinctAggregate
+  countNonNull: LabelCountNonNullAggregate
+  max: LabelMaxAggregate
+  min: LabelMinAggregate
+}
+
+type LabelCountDistinctAggregate {
+  color: Int!
+  id: Int!
+  label: Int!
+  userId: Int!
+}
+
+input LabelCountDistinctHaving {
+  color: AggregateNumberFilter
+  id: AggregateNumberFilter
+  label: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+type LabelCountNonNullAggregate {
+  color: Int!
+  id: Int!
+  label: Int!
+  userId: Int!
+}
+
+input LabelCountNonNullHaving {
+  color: AggregateNumberFilter
+  id: AggregateNumberFilter
+  label: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+"""Columns of Label that a query can be made distinct on"""
+enum LabelDistinctColumn {
+  color
+  id
+  label
+  userId
+}
+
+input LabelFilters {
+  """Every branch matches"""
+  AND: [LabelFilters!]
+
+  """Negates the nested filters"""
+  NOT: LabelFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [LabelFilters!]
+  color: StringFilter
+  id: IdFilter
+  label: StringFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+type LabelGroupBy {
+  count: Int!
+  countDistinct: LabelCountDistinctAggregate
+  countNonNull: LabelCountNonNullAggregate
+  group: LabelGroupKeys!
+  max: LabelMaxAggregate
+  min: LabelMinAggregate
+}
+
+"""Columns of Label that a query can group by"""
+enum LabelGroupByColumn {
+  color
+  id
+  label
+  userId
+}
+
+"""
+The grouped column values of one Label group. A column the query did not group by is null.
+"""
+type LabelGroupKeys {
+  color: String
+  id: UUID
+  label: String
+  userId: UUID
+}
+
+"""Filters Label groups by their aggregated values"""
+input LabelHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: LabelCountDistinctHaving
+  countNonNull: LabelCountNonNullHaving
+}
+
+input LabelListRelationFilter {
+  """Every related row matches"""
+  every: LabelFilters
+
+  """No related row matches"""
+  none: LabelFilters
+
+  """At least one related row matches"""
+  some: LabelFilters
+}
+
+type LabelMaxAggregate {
+  color: String
+  id: UUID
+  label: String
+  userId: UUID
+}
+
+type LabelMinAggregate {
+  color: String
+  id: UUID
+  label: String
+  userId: UUID
+}
+
+input LabelOrderBy {
+  color: InnerOrder
+  id: InnerOrder
+  label: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type Mutation {
+  addPersonToMyContacts(personId: UUID!): UserPerson!
+  createAddress(values: CreateAddressInput!): Address!
+  createAddresses(values: [CreateAddressInput!]!): [Address!]!
+  createContactInfo(values: CreateContactInfoInput!): ContactInfo!
+  createContactInfos(values: [CreateContactInfoInput!]!): [ContactInfo!]!
+  createImportantDate(values: CreateImportantDateInput!): ImportantDate!
+  createImportantDateTag(values: CreateImportantDateTagInput!): ImportantDateTag!
+  createImportantDateTags(values: [CreateImportantDateTagInput!]!): [ImportantDateTag!]!
+  createImportantDates(values: [CreateImportantDateInput!]!): [ImportantDate!]!
+  createInteraction(values: CreateInteractionInput!): Interaction!
+  createInteractionTag(values: CreateInteractionTagInput!): InteractionTag!
+  createInteractionTags(values: [CreateInteractionTagInput!]!): [InteractionTag!]!
+  createInteractions(values: [CreateInteractionInput!]!): [Interaction!]!
+  createLabel(values: CreateLabelInput!): Label!
+  createLabels(values: [CreateLabelInput!]!): [Label!]!
+  createNote(values: CreateNoteInput!): Note!
+  createNoteMention(values: CreateNoteMentionInput!): NoteMention!
+  createNoteMentions(values: [CreateNoteMentionInput!]!): [NoteMention!]!
+  createNoteTag(values: CreateNoteTagInput!): NoteTag!
+  createNoteTags(values: [CreateNoteTagInput!]!): [NoteTag!]!
+  createNotes(values: [CreateNoteInput!]!): [Note!]!
+  createPerson(values: CreatePersonInput!): Person!
+  createPersonLabel(values: CreatePersonLabelInput!): PersonLabel!
+  createPersonLabels(values: [CreatePersonLabelInput!]!): [PersonLabel!]!
+  createPersonRelationship(values: CreatePersonRelationshipInput!): PersonRelationship!
+  createPersonRelationships(values: [CreatePersonRelationshipInput!]!): [PersonRelationship!]!
+  createPersons(values: [CreatePersonInput!]!): [Person!]!
+  createRelationshipType(values: CreateRelationshipTypeInput!): RelationshipType!
+  createRelationshipTypes(values: [CreateRelationshipTypeInput!]!): [RelationshipType!]!
+  createTask(values: CreateTaskInput!): Task!
+  createTasks(values: [CreateTaskInput!]!): [Task!]!
+  createUserPerson(values: CreateUserPersonInput!): UserPerson!
+  createUserPersons(values: [CreateUserPersonInput!]!): [UserPerson!]!
+  deleteAddress(where: AddressFilters): [Address!]!
+  deleteAddressSingle(where: AddressFilters!): Address
+  deleteContactInfo(where: ContactInfoFilters): [ContactInfo!]!
+  deleteContactInfoSingle(where: ContactInfoFilters!): ContactInfo
+  deleteImportantDate(where: ImportantDateFilters): [ImportantDate!]!
+  deleteImportantDateSingle(where: ImportantDateFilters!): ImportantDate
+  deleteImportantDateTag(where: ImportantDateTagFilters): [ImportantDateTag!]!
+  deleteImportantDateTagSingle(where: ImportantDateTagFilters!): ImportantDateTag
+  deleteInteraction(where: InteractionFilters): [Interaction!]!
+  deleteInteractionSingle(where: InteractionFilters!): Interaction
+  deleteInteractionTag(where: InteractionTagFilters): [InteractionTag!]!
+  deleteInteractionTagSingle(where: InteractionTagFilters!): InteractionTag
+  deleteLabel(where: LabelFilters): [Label!]!
+  deleteLabelSingle(where: LabelFilters!): Label
+  deleteNote(where: NoteFilters): [Note!]!
+  deleteNoteMention(where: NoteMentionFilters): [NoteMention!]!
+  deleteNoteMentionSingle(where: NoteMentionFilters!): NoteMention
+  deleteNoteSingle(where: NoteFilters!): Note
+  deleteNoteTag(where: NoteTagFilters): [NoteTag!]!
+  deleteNoteTagSingle(where: NoteTagFilters!): NoteTag
+  deletePerson(where: PersonFilters): [Person!]!
+  deletePersonLabel(where: PersonLabelFilters): [PersonLabel!]!
+  deletePersonLabelSingle(where: PersonLabelFilters!): PersonLabel
+  deletePersonRelationship(where: PersonRelationshipFilters): [PersonRelationship!]!
+  deletePersonRelationshipSingle(where: PersonRelationshipFilters!): PersonRelationship
+  deletePersonSingle(where: PersonFilters!): Person
+  deleteRelationshipType(where: RelationshipTypeFilters): [RelationshipType!]!
+  deleteRelationshipTypeSingle(where: RelationshipTypeFilters!): RelationshipType
+  deleteTask(where: TaskFilters): [Task!]!
+  deleteTaskSingle(where: TaskFilters!): Task
+  deleteUserPerson(where: UserPersonFilters): [UserPerson!]!
+  deleteUserPersonSingle(where: UserPersonFilters!): UserPerson
+  importGoogleContacts(csv: String!): ImportContactsResult!
+  mergeLabelInto(deleteId: UUID!, keepId: UUID!): Label
+  myCreateApiKey(input: CreateApiKeyInput!): CreateApiKeyResult!
+  myRevokeApiKey(id: ID!): Boolean!
+  removePersonFromMyContacts(personId: UUID!): Boolean!
+  requestMagicLink(email: String!): RequestMagicLinkResult!
+  updateAddress(set: UpdateAddressInput!, where: AddressFilters): [Address!]!
+  updateAddressSingle(set: UpdateAddressInput!, where: AddressFilters!): Address
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateAddressesMany(updates: [UpdateAddressManyInput!]!): [Address]!
+  updateContactInfo(set: UpdateContactInfoInput!, where: ContactInfoFilters): [ContactInfo!]!
+  updateContactInfoSingle(set: UpdateContactInfoInput!, where: ContactInfoFilters!): ContactInfo
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateContactInfosMany(updates: [UpdateContactInfoManyInput!]!): [ContactInfo]!
+  updateImportantDate(set: UpdateImportantDateInput!, where: ImportantDateFilters): [ImportantDate!]!
+  updateImportantDateSingle(set: UpdateImportantDateInput!, where: ImportantDateFilters!): ImportantDate
+  updateImportantDateTag(set: UpdateImportantDateTagInput!, where: ImportantDateTagFilters): [ImportantDateTag!]!
+  updateImportantDateTagSingle(set: UpdateImportantDateTagInput!, where: ImportantDateTagFilters!): ImportantDateTag
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateImportantDateTagsMany(updates: [UpdateImportantDateTagManyInput!]!): [ImportantDateTag]!
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateImportantDatesMany(updates: [UpdateImportantDateManyInput!]!): [ImportantDate]!
+  updateInteraction(set: UpdateInteractionInput!, where: InteractionFilters): [Interaction!]!
+  updateInteractionSingle(set: UpdateInteractionInput!, where: InteractionFilters!): Interaction
+  updateInteractionTag(set: UpdateInteractionTagInput!, where: InteractionTagFilters): [InteractionTag!]!
+  updateInteractionTagSingle(set: UpdateInteractionTagInput!, where: InteractionTagFilters!): InteractionTag
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateInteractionTagsMany(updates: [UpdateInteractionTagManyInput!]!): [InteractionTag]!
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateInteractionsMany(updates: [UpdateInteractionManyInput!]!): [Interaction]!
+  updateLabel(set: UpdateLabelInput!, where: LabelFilters): [Label!]!
+  updateLabelSingle(set: UpdateLabelInput!, where: LabelFilters!): Label
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateLabelsMany(updates: [UpdateLabelManyInput!]!): [Label]!
+  updateMyPersonContext(avatarPath: String, contactFrequency: String, firstMetDate: String, howWeMet: String, personId: UUID!): UserPerson!
+  updateNote(set: UpdateNoteInput!, where: NoteFilters): [Note!]!
+  updateNoteMention(set: UpdateNoteMentionInput!, where: NoteMentionFilters): [NoteMention!]!
+  updateNoteMentionSingle(set: UpdateNoteMentionInput!, where: NoteMentionFilters!): NoteMention
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateNoteMentionsMany(updates: [UpdateNoteMentionManyInput!]!): [NoteMention]!
+  updateNoteSingle(set: UpdateNoteInput!, where: NoteFilters!): Note
+  updateNoteTag(set: UpdateNoteTagInput!, where: NoteTagFilters): [NoteTag!]!
+  updateNoteTagSingle(set: UpdateNoteTagInput!, where: NoteTagFilters!): NoteTag
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateNoteTagsMany(updates: [UpdateNoteTagManyInput!]!): [NoteTag]!
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateNotesMany(updates: [UpdateNoteManyInput!]!): [Note]!
+  updatePerson(set: UpdatePersonInput!, where: PersonFilters): [Person!]!
+  updatePersonLabel(set: UpdatePersonLabelInput!, where: PersonLabelFilters): [PersonLabel!]!
+  updatePersonLabelSingle(set: UpdatePersonLabelInput!, where: PersonLabelFilters!): PersonLabel
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updatePersonLabelsMany(updates: [UpdatePersonLabelManyInput!]!): [PersonLabel]!
+  updatePersonRelationship(set: UpdatePersonRelationshipInput!, where: PersonRelationshipFilters): [PersonRelationship!]!
+  updatePersonRelationshipSingle(set: UpdatePersonRelationshipInput!, where: PersonRelationshipFilters!): PersonRelationship
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updatePersonRelationshipsMany(updates: [UpdatePersonRelationshipManyInput!]!): [PersonRelationship]!
+  updatePersonSingle(set: UpdatePersonInput!, where: PersonFilters!): Person
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updatePersonsMany(updates: [UpdatePersonManyInput!]!): [Person]!
+  updateRelationshipType(set: UpdateRelationshipTypeInput!, where: RelationshipTypeFilters): [RelationshipType!]!
+  updateRelationshipTypeSingle(set: UpdateRelationshipTypeInput!, where: RelationshipTypeFilters!): RelationshipType
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateRelationshipTypesMany(updates: [UpdateRelationshipTypeManyInput!]!): [RelationshipType]!
+  updateTask(set: UpdateTaskInput!, where: TaskFilters): [Task!]!
+  updateTaskSingle(set: UpdateTaskInput!, where: TaskFilters!): Task
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateTasksMany(updates: [UpdateTaskManyInput!]!): [Task]!
+  updateUserPerson(set: UpdateUserPersonInput!, where: UserPersonFilters): [UserPerson!]!
+  updateUserPersonSingle(set: UpdateUserPersonInput!, where: UserPersonFilters!): UserPerson
+
+  """
+  Each entry's updated rows, in entry order. An entry whose `where` matched no rows contributes `null` in its slot; an entry that matched several contributes each of its rows.
+  """
+  updateUserPersonsMany(updates: [UpdateUserPersonManyInput!]!): [UserPerson]!
+  verifyMagicLink(token: String!): AuthPayload!
+}
+
+type Note {
+  body: String!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  id: UUID!
+  labels(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [LabelDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: LabelOrderBy
+    where: LabelFilters
+  ): [Label!]!
+  labelsAggregate(where: LabelFilters): LabelAggregate!
+  mentions(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [PersonDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: PersonOrderBy
+    where: PersonFilters
+  ): [Person!]!
+  mentionsAggregate(where: PersonFilters): PersonAggregate!
+  person(where: PersonFilters): Person
+  personId: UUID
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+type NoteAggregate {
+  count: Int!
+  countDistinct: NoteCountDistinctAggregate
+  countNonNull: NoteCountNonNullAggregate
+  max: NoteMaxAggregate
+  min: NoteMinAggregate
+}
+
+type NoteCountDistinctAggregate {
+  body: Int!
+  id: Int!
+  personId: Int!
+  userId: Int!
+}
+
+input NoteCountDistinctHaving {
+  body: AggregateNumberFilter
+  id: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+type NoteCountNonNullAggregate {
+  body: Int!
+  id: Int!
+  personId: Int!
+  userId: Int!
+}
+
+input NoteCountNonNullHaving {
+  body: AggregateNumberFilter
+  id: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+"""Columns of Note that a query can be made distinct on"""
+enum NoteDistinctColumn {
+  body
+  id
+  personId
+  userId
+}
+
+input NoteFilters {
+  """Every branch matches"""
+  AND: [NoteFilters!]
+
+  """Negates the nested filters"""
+  NOT: NoteFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [NoteFilters!]
+  body: StringFilter
+  id: IdFilter
+  labels: LabelListRelationFilter
+  mentions: PersonListRelationFilter
+
+  """Matches rows whose person matches these filters"""
+  person: PersonFilters
+  personId: IdFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+type NoteGroupBy {
+  count: Int!
+  countDistinct: NoteCountDistinctAggregate
+  countNonNull: NoteCountNonNullAggregate
+  group: NoteGroupKeys!
+  max: NoteMaxAggregate
+  min: NoteMinAggregate
+}
+
+"""Columns of Note that a query can group by"""
+enum NoteGroupByColumn {
+  body
+  id
+  personId
+  userId
+}
+
+"""
+The grouped column values of one Note group. A column the query did not group by is null.
+"""
+type NoteGroupKeys {
+  body: String
+  id: UUID
+  personId: UUID
+  userId: UUID
+}
+
+"""Filters Note groups by their aggregated values"""
+input NoteHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: NoteCountDistinctHaving
+  countNonNull: NoteCountNonNullHaving
+}
+
+input NoteListRelationFilter {
+  """Every related row matches"""
+  every: NoteFilters
+
+  """No related row matches"""
+  none: NoteFilters
+
+  """At least one related row matches"""
+  some: NoteFilters
+}
+
+type NoteMaxAggregate {
+  body: String
+  id: UUID
+  personId: UUID
+  userId: UUID
+}
+
+type NoteMention {
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  mentionedPersonId: UUID!
+  noteId: UUID!
+}
+
+type NoteMentionAggregate {
+  count: Int!
+  countDistinct: NoteMentionCountDistinctAggregate
+  countNonNull: NoteMentionCountNonNullAggregate
+  max: NoteMentionMaxAggregate
+  min: NoteMentionMinAggregate
+}
+
+type NoteMentionCountDistinctAggregate {
+  mentionedPersonId: Int!
+  noteId: Int!
+}
+
+input NoteMentionCountDistinctHaving {
+  mentionedPersonId: AggregateNumberFilter
+  noteId: AggregateNumberFilter
+}
+
+type NoteMentionCountNonNullAggregate {
+  mentionedPersonId: Int!
+  noteId: Int!
+}
+
+input NoteMentionCountNonNullHaving {
+  mentionedPersonId: AggregateNumberFilter
+  noteId: AggregateNumberFilter
+}
+
+"""Columns of NoteMention that a query can be made distinct on"""
+enum NoteMentionDistinctColumn {
+  mentionedPersonId
+  noteId
+}
+
+input NoteMentionFilters {
+  """Every branch matches"""
+  AND: [NoteMentionFilters!]
+
+  """Negates the nested filters"""
+  NOT: NoteMentionFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [NoteMentionFilters!]
+  mentionedPersonId: IdFilter
+  noteId: IdFilter
+}
+
+type NoteMentionGroupBy {
+  count: Int!
+  countDistinct: NoteMentionCountDistinctAggregate
+  countNonNull: NoteMentionCountNonNullAggregate
+  group: NoteMentionGroupKeys!
+  max: NoteMentionMaxAggregate
+  min: NoteMentionMinAggregate
+}
+
+"""Columns of NoteMention that a query can group by"""
+enum NoteMentionGroupByColumn {
+  mentionedPersonId
+  noteId
+}
+
+"""
+The grouped column values of one NoteMention group. A column the query did not group by is null.
+"""
+type NoteMentionGroupKeys {
+  mentionedPersonId: UUID
+  noteId: UUID
+}
+
+"""Filters NoteMention groups by their aggregated values"""
+input NoteMentionHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: NoteMentionCountDistinctHaving
+  countNonNull: NoteMentionCountNonNullHaving
+}
+
+type NoteMentionMaxAggregate {
+  mentionedPersonId: UUID
+  noteId: UUID
+}
+
+type NoteMentionMinAggregate {
+  mentionedPersonId: UUID
+  noteId: UUID
+}
+
+input NoteMentionOrderBy {
+  mentionedPersonId: InnerOrder
+  noteId: InnerOrder
+}
+
+type NoteMinAggregate {
+  body: String
+  id: UUID
+  personId: UUID
+  userId: UUID
+}
+
+input NoteOrderBy {
+  body: InnerOrder
+  id: InnerOrder
+
+  """Order by columns of the related person row"""
+  person: PersonOrderBy
+  personId: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type NoteTag {
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  labelId: UUID!
+  noteId: UUID!
+}
+
+type NoteTagAggregate {
+  count: Int!
+  countDistinct: NoteTagCountDistinctAggregate
+  countNonNull: NoteTagCountNonNullAggregate
+  max: NoteTagMaxAggregate
+  min: NoteTagMinAggregate
+}
+
+type NoteTagCountDistinctAggregate {
+  labelId: Int!
+  noteId: Int!
+}
+
+input NoteTagCountDistinctHaving {
+  labelId: AggregateNumberFilter
+  noteId: AggregateNumberFilter
+}
+
+type NoteTagCountNonNullAggregate {
+  labelId: Int!
+  noteId: Int!
+}
+
+input NoteTagCountNonNullHaving {
+  labelId: AggregateNumberFilter
+  noteId: AggregateNumberFilter
+}
+
+"""Columns of NoteTag that a query can be made distinct on"""
+enum NoteTagDistinctColumn {
+  labelId
+  noteId
+}
+
+input NoteTagFilters {
+  """Every branch matches"""
+  AND: [NoteTagFilters!]
+
+  """Negates the nested filters"""
+  NOT: NoteTagFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [NoteTagFilters!]
+  labelId: IdFilter
+  noteId: IdFilter
+}
+
+type NoteTagGroupBy {
+  count: Int!
+  countDistinct: NoteTagCountDistinctAggregate
+  countNonNull: NoteTagCountNonNullAggregate
+  group: NoteTagGroupKeys!
+  max: NoteTagMaxAggregate
+  min: NoteTagMinAggregate
+}
+
+"""Columns of NoteTag that a query can group by"""
+enum NoteTagGroupByColumn {
+  labelId
+  noteId
+}
+
+"""
+The grouped column values of one NoteTag group. A column the query did not group by is null.
+"""
+type NoteTagGroupKeys {
+  labelId: UUID
+  noteId: UUID
+}
+
+"""Filters NoteTag groups by their aggregated values"""
+input NoteTagHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: NoteTagCountDistinctHaving
+  countNonNull: NoteTagCountNonNullHaving
+}
+
+type NoteTagMaxAggregate {
+  labelId: UUID
+  noteId: UUID
+}
+
+type NoteTagMinAggregate {
+  labelId: UUID
+  noteId: UUID
+}
+
+input NoteTagOrderBy {
+  labelId: InnerOrder
+  noteId: InnerOrder
+}
+
+"""Order by direction"""
+enum OrderDirection {
+  """Ascending order"""
+  asc
+
+  """Descending order"""
+  desc
+}
+
+"""Where NULL values sort relative to non-NULL values"""
+enum OrderNulls {
+  """NULL values sort before all non-NULL values"""
+  first
+
+  """NULL values sort after all non-NULL values"""
+  last
+}
+
+type Person {
+  addresses(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [AddressDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: AddressOrderBy
+    where: AddressFilters
+  ): [Address!]!
+  addressesAggregate(where: AddressFilters): AddressAggregate!
+  avatarPath: String
+  contactFrequency: String
+  contactInfos(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [ContactInfoDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ContactInfoOrderBy
+    where: ContactInfoFilters
+  ): [ContactInfo!]!
+  contactInfosAggregate(where: ContactInfoFilters): ContactInfoAggregate!
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  email: String
+  firstMetDate: String
+  firstName: String!
+  howWeMet: String
+  id: UUID!
+  importantDates(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [ImportantDateDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ImportantDateOrderBy
+    where: ImportantDateFilters
+  ): [ImportantDate!]!
+  importantDatesAggregate(where: ImportantDateFilters): ImportantDateAggregate!
+  interactions(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [InteractionDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: InteractionOrderBy
+    where: InteractionFilters
+  ): [Interaction!]!
+  interactionsAggregate(where: InteractionFilters): InteractionAggregate!
+  labels(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [LabelDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: LabelOrderBy
+    where: LabelFilters
+  ): [Label!]!
+  labelsAggregate(where: LabelFilters): LabelAggregate!
+  lastName: String!
+  mentionedInNotes(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [NoteDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: NoteOrderBy
+    where: NoteFilters
+  ): [Note!]!
+  mentionedInNotesAggregate(where: NoteFilters): NoteAggregate!
+  notes(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [NoteDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: NoteOrderBy
+    where: NoteFilters
+  ): [Note!]!
+  notesAggregate(where: NoteFilters): NoteAggregate!
+  relationships: [PersonRelationshipEntry!]!
+  relationshipsFrom(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [PersonRelationshipDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: PersonRelationshipOrderBy
+    where: PersonRelationshipFilters
+  ): [PersonRelationship!]!
+  relationshipsFromAggregate(where: PersonRelationshipFilters): PersonRelationshipAggregate!
+  relationshipsTo(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [PersonRelationshipDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: PersonRelationshipOrderBy
+    where: PersonRelationshipFilters
+  ): [PersonRelationship!]!
+  relationshipsToAggregate(where: PersonRelationshipFilters): PersonRelationshipAggregate!
+  tasks(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [TaskDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TaskOrderBy
+    where: TaskFilters
+  ): [Task!]!
+  tasksAggregate(where: TaskFilters): TaskAggregate!
+  updatedAt: DateTime!
+  userPersons(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [UserPersonDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: UserPersonOrderBy
+    where: UserPersonFilters
+  ): [UserPerson!]!
+  userPersonsAggregate(where: UserPersonFilters): UserPersonAggregate!
+}
+
+type PersonAggregate {
+  count: Int!
+  countDistinct: PersonCountDistinctAggregate
+  countNonNull: PersonCountNonNullAggregate
+  max: PersonMaxAggregate
+  min: PersonMinAggregate
+}
+
+type PersonCountDistinctAggregate {
+  createdAt: Int!
+  email: Int!
+  firstName: Int!
+  id: Int!
+  lastName: Int!
+  updatedAt: Int!
+}
+
+input PersonCountDistinctHaving {
+  createdAt: AggregateNumberFilter
+  email: AggregateNumberFilter
+  firstName: AggregateNumberFilter
+  id: AggregateNumberFilter
+  lastName: AggregateNumberFilter
+  updatedAt: AggregateNumberFilter
+}
+
+type PersonCountNonNullAggregate {
+  createdAt: Int!
+  email: Int!
+  firstName: Int!
+  id: Int!
+  lastName: Int!
+  updatedAt: Int!
+}
+
+input PersonCountNonNullHaving {
+  createdAt: AggregateNumberFilter
+  email: AggregateNumberFilter
+  firstName: AggregateNumberFilter
+  id: AggregateNumberFilter
+  lastName: AggregateNumberFilter
+  updatedAt: AggregateNumberFilter
+}
+
+"""Columns of Person that a query can be made distinct on"""
+enum PersonDistinctColumn {
+  createdAt
+  email
+  firstName
+  id
+  lastName
+  updatedAt
+}
+
+input PersonFilters {
+  """Every branch matches"""
+  AND: [PersonFilters!]
+
+  """Negates the nested filters"""
+  NOT: PersonFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [PersonFilters!]
+  addresses: AddressListRelationFilter
+  contactInfos: ContactInfoListRelationFilter
+  createdAt: DateTimeFilter
+  email: StringFilter
+  firstName: StringFilter
+  id: IdFilter
+  importantDates: ImportantDateListRelationFilter
+  interactions: InteractionListRelationFilter
+  labels: LabelListRelationFilter
+  lastName: StringFilter
+  mentionedInNotes: NoteListRelationFilter
+  notes: NoteListRelationFilter
+  relationshipsFrom: PersonRelationshipListRelationFilter
+  relationshipsTo: PersonRelationshipListRelationFilter
+  tasks: TaskListRelationFilter
+  updatedAt: DateTimeFilter
+  userPersons: UserPersonListRelationFilter
+}
+
+type PersonGroupBy {
+  count: Int!
+  countDistinct: PersonCountDistinctAggregate
+  countNonNull: PersonCountNonNullAggregate
+  group: PersonGroupKeys!
+  max: PersonMaxAggregate
+  min: PersonMinAggregate
+}
+
+"""Columns of Person that a query can group by"""
+enum PersonGroupByColumn {
+  createdAt
+  email
+  firstName
+  id
+  lastName
+  updatedAt
+}
+
+"""
+The grouped column values of one Person group. A column the query did not group by is null.
+"""
+type PersonGroupKeys {
+  createdAt: DateTime
+  email: String
+  firstName: String
+  id: UUID
+  lastName: String
+  updatedAt: DateTime
+}
+
+"""Filters Person groups by their aggregated values"""
+input PersonHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: PersonCountDistinctHaving
+  countNonNull: PersonCountNonNullHaving
+}
+
+type PersonLabel {
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  labelId: UUID!
+  personId: UUID!
+  userId: UUID!
+}
+
+type PersonLabelAggregate {
+  count: Int!
+  countDistinct: PersonLabelCountDistinctAggregate
+  countNonNull: PersonLabelCountNonNullAggregate
+  max: PersonLabelMaxAggregate
+  min: PersonLabelMinAggregate
+}
+
+type PersonLabelCountDistinctAggregate {
+  labelId: Int!
+  personId: Int!
+  userId: Int!
+}
+
+input PersonLabelCountDistinctHaving {
+  labelId: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+type PersonLabelCountNonNullAggregate {
+  labelId: Int!
+  personId: Int!
+  userId: Int!
+}
+
+input PersonLabelCountNonNullHaving {
+  labelId: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+"""Columns of PersonLabel that a query can be made distinct on"""
+enum PersonLabelDistinctColumn {
+  labelId
+  personId
+  userId
+}
+
+input PersonLabelFilters {
+  """Every branch matches"""
+  AND: [PersonLabelFilters!]
+
+  """Negates the nested filters"""
+  NOT: PersonLabelFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [PersonLabelFilters!]
+  labelId: IdFilter
+  personId: IdFilter
+  userId: IdFilter
+}
+
+type PersonLabelGroupBy {
+  count: Int!
+  countDistinct: PersonLabelCountDistinctAggregate
+  countNonNull: PersonLabelCountNonNullAggregate
+  group: PersonLabelGroupKeys!
+  max: PersonLabelMaxAggregate
+  min: PersonLabelMinAggregate
+}
+
+"""Columns of PersonLabel that a query can group by"""
+enum PersonLabelGroupByColumn {
+  labelId
+  personId
+  userId
+}
+
+"""
+The grouped column values of one PersonLabel group. A column the query did not group by is null.
+"""
+type PersonLabelGroupKeys {
+  labelId: UUID
+  personId: UUID
+  userId: UUID
+}
+
+"""Filters PersonLabel groups by their aggregated values"""
+input PersonLabelHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: PersonLabelCountDistinctHaving
+  countNonNull: PersonLabelCountNonNullHaving
+}
+
+type PersonLabelMaxAggregate {
+  labelId: UUID
+  personId: UUID
+  userId: UUID
+}
+
+type PersonLabelMinAggregate {
+  labelId: UUID
+  personId: UUID
+  userId: UUID
+}
+
+input PersonLabelOrderBy {
+  labelId: InnerOrder
+  personId: InnerOrder
+  userId: InnerOrder
+}
+
+input PersonListRelationFilter {
+  """Every related row matches"""
+  every: PersonFilters
+
+  """No related row matches"""
+  none: PersonFilters
+
+  """At least one related row matches"""
+  some: PersonFilters
+}
+
+type PersonMaxAggregate {
+  createdAt: DateTime
+  email: String
+  firstName: String
+  id: UUID
+  lastName: String
+  updatedAt: DateTime
+}
+
+type PersonMinAggregate {
+  createdAt: DateTime
+  email: String
+  firstName: String
+  id: UUID
+  lastName: String
+  updatedAt: DateTime
+}
+
+input PersonOrderBy {
+  createdAt: InnerOrder
+  email: InnerOrder
+  firstName: InnerOrder
+  id: InnerOrder
+  lastName: InnerOrder
+  updatedAt: InnerOrder
+}
+
+type PersonRelationship {
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  fromPerson(where: PersonFilters): Person
+  fromPersonId: UUID!
+  id: UUID!
+  toPerson(where: PersonFilters): Person
+  toPersonId: UUID!
+  type: String!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+type PersonRelationshipAggregate {
+  count: Int!
+  countDistinct: PersonRelationshipCountDistinctAggregate
+  countNonNull: PersonRelationshipCountNonNullAggregate
+  max: PersonRelationshipMaxAggregate
+  min: PersonRelationshipMinAggregate
+}
+
+type PersonRelationshipCountDistinctAggregate {
+  fromPersonId: Int!
+  id: Int!
+  toPersonId: Int!
+  type: Int!
+  userId: Int!
+}
+
+input PersonRelationshipCountDistinctHaving {
+  fromPersonId: AggregateNumberFilter
+  id: AggregateNumberFilter
+  toPersonId: AggregateNumberFilter
+  type: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+type PersonRelationshipCountNonNullAggregate {
+  fromPersonId: Int!
+  id: Int!
+  toPersonId: Int!
+  type: Int!
+  userId: Int!
+}
+
+input PersonRelationshipCountNonNullHaving {
+  fromPersonId: AggregateNumberFilter
+  id: AggregateNumberFilter
+  toPersonId: AggregateNumberFilter
+  type: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+"""Columns of PersonRelationship that a query can be made distinct on"""
+enum PersonRelationshipDistinctColumn {
+  fromPersonId
+  id
+  toPersonId
+  type
+  userId
+}
+
+type PersonRelationshipEntry {
+  id: String!
+  relatedPersonFirstName: String!
+  relatedPersonId: String!
+  relatedPersonLastName: String!
+  type: String!
+}
+
+input PersonRelationshipFilters {
+  """Every branch matches"""
+  AND: [PersonRelationshipFilters!]
+
+  """Negates the nested filters"""
+  NOT: PersonRelationshipFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [PersonRelationshipFilters!]
+
+  """Matches rows whose fromPerson matches these filters"""
+  fromPerson: PersonFilters
+  fromPersonId: IdFilter
+  id: IdFilter
+
+  """Matches rows whose toPerson matches these filters"""
+  toPerson: PersonFilters
+  toPersonId: IdFilter
+  type: StringFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+type PersonRelationshipGroupBy {
+  count: Int!
+  countDistinct: PersonRelationshipCountDistinctAggregate
+  countNonNull: PersonRelationshipCountNonNullAggregate
+  group: PersonRelationshipGroupKeys!
+  max: PersonRelationshipMaxAggregate
+  min: PersonRelationshipMinAggregate
+}
+
+"""Columns of PersonRelationship that a query can group by"""
+enum PersonRelationshipGroupByColumn {
+  fromPersonId
+  id
+  toPersonId
+  type
+  userId
+}
+
+"""
+The grouped column values of one PersonRelationship group. A column the query did not group by is null.
+"""
+type PersonRelationshipGroupKeys {
+  fromPersonId: UUID
+  id: UUID
+  toPersonId: UUID
+  type: String
+  userId: UUID
+}
+
+"""Filters PersonRelationship groups by their aggregated values"""
+input PersonRelationshipHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: PersonRelationshipCountDistinctHaving
+  countNonNull: PersonRelationshipCountNonNullHaving
+}
+
+input PersonRelationshipListRelationFilter {
+  """Every related row matches"""
+  every: PersonRelationshipFilters
+
+  """No related row matches"""
+  none: PersonRelationshipFilters
+
+  """At least one related row matches"""
+  some: PersonRelationshipFilters
+}
+
+type PersonRelationshipMaxAggregate {
+  fromPersonId: UUID
+  id: UUID
+  toPersonId: UUID
+  type: String
+  userId: UUID
+}
+
+type PersonRelationshipMinAggregate {
+  fromPersonId: UUID
+  id: UUID
+  toPersonId: UUID
+  type: String
+  userId: UUID
+}
+
+input PersonRelationshipOrderBy {
+  """Order by columns of the related fromPerson row"""
+  fromPerson: PersonOrderBy
+  fromPersonId: InnerOrder
+  id: InnerOrder
+
+  """Order by columns of the related toPerson row"""
+  toPerson: PersonOrderBy
+  toPersonId: InnerOrder
+  type: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type Query {
+  address(offset: Int, orderBy: AddressOrderBy, where: AddressFilters): Address
+  addresses(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [AddressDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: AddressOrderBy
+    where: AddressFilters
+  ): [Address!]!
+  addressesAggregate(where: AddressFilters): AddressAggregate!
+  addressesGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [AddressGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: AddressHaving
+
+    """Filters the rows before they are grouped."""
+    where: AddressFilters
+  ): [AddressGroupBy!]!
+  contactInfo(offset: Int, orderBy: ContactInfoOrderBy, where: ContactInfoFilters): ContactInfo
+  contactInfos(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [ContactInfoDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ContactInfoOrderBy
+    where: ContactInfoFilters
+  ): [ContactInfo!]!
+  contactInfosAggregate(where: ContactInfoFilters): ContactInfoAggregate!
+  contactInfosGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [ContactInfoGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: ContactInfoHaving
+
+    """Filters the rows before they are grouped."""
+    where: ContactInfoFilters
+  ): [ContactInfoGroupBy!]!
+  importantDate(offset: Int, orderBy: ImportantDateOrderBy, where: ImportantDateFilters): ImportantDate
+  importantDateTag(offset: Int, orderBy: ImportantDateTagOrderBy, where: ImportantDateTagFilters): ImportantDateTag
+  importantDateTags(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [ImportantDateTagDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ImportantDateTagOrderBy
+    where: ImportantDateTagFilters
+  ): [ImportantDateTag!]!
+  importantDateTagsAggregate(where: ImportantDateTagFilters): ImportantDateTagAggregate!
+  importantDateTagsGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [ImportantDateTagGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: ImportantDateTagHaving
+
+    """Filters the rows before they are grouped."""
+    where: ImportantDateTagFilters
+  ): [ImportantDateTagGroupBy!]!
+  importantDates(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [ImportantDateDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ImportantDateOrderBy
+    where: ImportantDateFilters
+  ): [ImportantDate!]!
+  importantDatesAggregate(where: ImportantDateFilters): ImportantDateAggregate!
+  importantDatesGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [ImportantDateGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: ImportantDateHaving
+
+    """Filters the rows before they are grouped."""
+    where: ImportantDateFilters
+  ): [ImportantDateGroupBy!]!
+  interaction(offset: Int, orderBy: InteractionOrderBy, where: InteractionFilters): Interaction
+  interactionTag(offset: Int, orderBy: InteractionTagOrderBy, where: InteractionTagFilters): InteractionTag
+  interactionTags(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [InteractionTagDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: InteractionTagOrderBy
+    where: InteractionTagFilters
+  ): [InteractionTag!]!
+  interactionTagsAggregate(where: InteractionTagFilters): InteractionTagAggregate!
+  interactionTagsGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [InteractionTagGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: InteractionTagHaving
+
+    """Filters the rows before they are grouped."""
+    where: InteractionTagFilters
+  ): [InteractionTagGroupBy!]!
+  interactions(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [InteractionDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: InteractionOrderBy
+    where: InteractionFilters
+  ): [Interaction!]!
+  interactionsAggregate(where: InteractionFilters): InteractionAggregate!
+  interactionsGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [InteractionGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: InteractionHaving
+
+    """Filters the rows before they are grouped."""
+    where: InteractionFilters
+  ): [InteractionGroupBy!]!
+  label(offset: Int, orderBy: LabelOrderBy, where: LabelFilters): Label
+  labels(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [LabelDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: LabelOrderBy
+    where: LabelFilters
+  ): [Label!]!
+  labelsAggregate(where: LabelFilters): LabelAggregate!
+  labelsGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [LabelGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: LabelHaving
+
+    """Filters the rows before they are grouped."""
+    where: LabelFilters
+  ): [LabelGroupBy!]!
+  me: User
+  myApiKeys: [ApiKeyRecord!]!
+  myPersonContext(personId: UUID!): UserPerson
+  note(offset: Int, orderBy: NoteOrderBy, where: NoteFilters): Note
+  noteMention(offset: Int, orderBy: NoteMentionOrderBy, where: NoteMentionFilters): NoteMention
+  noteMentions(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [NoteMentionDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: NoteMentionOrderBy
+    where: NoteMentionFilters
+  ): [NoteMention!]!
+  noteMentionsAggregate(where: NoteMentionFilters): NoteMentionAggregate!
+  noteMentionsGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [NoteMentionGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: NoteMentionHaving
+
+    """Filters the rows before they are grouped."""
+    where: NoteMentionFilters
+  ): [NoteMentionGroupBy!]!
+  noteTag(offset: Int, orderBy: NoteTagOrderBy, where: NoteTagFilters): NoteTag
+  noteTags(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [NoteTagDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: NoteTagOrderBy
+    where: NoteTagFilters
+  ): [NoteTag!]!
+  noteTagsAggregate(where: NoteTagFilters): NoteTagAggregate!
+  noteTagsGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [NoteTagGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: NoteTagHaving
+
+    """Filters the rows before they are grouped."""
+    where: NoteTagFilters
+  ): [NoteTagGroupBy!]!
+  notes(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [NoteDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: NoteOrderBy
+    where: NoteFilters
+  ): [Note!]!
+  notesAggregate(where: NoteFilters): NoteAggregate!
+  notesGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [NoteGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: NoteHaving
+
+    """Filters the rows before they are grouped."""
+    where: NoteFilters
+  ): [NoteGroupBy!]!
+  person(offset: Int, orderBy: PersonOrderBy, where: PersonFilters): Person
+  personLabel(offset: Int, orderBy: PersonLabelOrderBy, where: PersonLabelFilters): PersonLabel
+  personLabels(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [PersonLabelDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: PersonLabelOrderBy
+    where: PersonLabelFilters
+  ): [PersonLabel!]!
+  personLabelsAggregate(where: PersonLabelFilters): PersonLabelAggregate!
+  personLabelsGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [PersonLabelGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: PersonLabelHaving
+
+    """Filters the rows before they are grouped."""
+    where: PersonLabelFilters
+  ): [PersonLabelGroupBy!]!
+  personRelationship(offset: Int, orderBy: PersonRelationshipOrderBy, where: PersonRelationshipFilters): PersonRelationship
+  personRelationships(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [PersonRelationshipDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: PersonRelationshipOrderBy
+    where: PersonRelationshipFilters
+  ): [PersonRelationship!]!
+  personRelationshipsAggregate(where: PersonRelationshipFilters): PersonRelationshipAggregate!
+  personRelationshipsGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [PersonRelationshipGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: PersonRelationshipHaving
+
+    """Filters the rows before they are grouped."""
+    where: PersonRelationshipFilters
+  ): [PersonRelationshipGroupBy!]!
+  persons(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [PersonDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: PersonOrderBy
+    where: PersonFilters
+  ): [Person!]!
+  personsAggregate(where: PersonFilters): PersonAggregate!
+  personsGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [PersonGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: PersonHaving
+
+    """Filters the rows before they are grouped."""
+    where: PersonFilters
+  ): [PersonGroupBy!]!
+  relationshipType(offset: Int, orderBy: RelationshipTypeOrderBy, where: RelationshipTypeFilters): RelationshipType
+  relationshipTypes(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [RelationshipTypeDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: RelationshipTypeOrderBy
+    where: RelationshipTypeFilters
+  ): [RelationshipType!]!
+  relationshipTypesAggregate(where: RelationshipTypeFilters): RelationshipTypeAggregate!
+  relationshipTypesGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [RelationshipTypeGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: RelationshipTypeHaving
+
+    """Filters the rows before they are grouped."""
+    where: RelationshipTypeFilters
+  ): [RelationshipTypeGroupBy!]!
+  task(offset: Int, orderBy: TaskOrderBy, where: TaskFilters): Task
+  tasks(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [TaskDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TaskOrderBy
+    where: TaskFilters
+  ): [Task!]!
+  tasksAggregate(where: TaskFilters): TaskAggregate!
+  tasksGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [TaskGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: TaskHaving
+
+    """Filters the rows before they are grouped."""
+    where: TaskFilters
+  ): [TaskGroupBy!]!
+  upcomingDates(limit: Int, lookaheadDays: Int, offset: Int): [UpcomingDateEntry!]!
+  user(offset: Int, orderBy: UserOrderBy, where: UserFilters): User
+  userPerson(offset: Int, orderBy: UserPersonOrderBy, where: UserPersonFilters): UserPerson
+  userPersons(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [UserPersonDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: UserPersonOrderBy
+    where: UserPersonFilters
+  ): [UserPerson!]!
+  userPersonsAggregate(where: UserPersonFilters): UserPersonAggregate!
+  userPersonsGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [UserPersonGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: UserPersonHaving
+
+    """Filters the rows before they are grouped."""
+    where: UserPersonFilters
+  ): [UserPersonGroupBy!]!
+  users(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [UserDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: UserOrderBy
+    where: UserFilters
+  ): [User!]!
+  usersAggregate(where: UserFilters): UserAggregate!
+  usersGroupBy(
+    """
+    Columns to group by. One result row per distinct combination of their values.
+    """
+    groupBy: [UserGroupByColumn!]!
+
+    """Filters the groups after they are aggregated."""
+    having: UserHaving
+
+    """Filters the rows before they are grouped."""
+    where: UserFilters
+  ): [UserGroupBy!]!
+}
+
+type RelationshipType {
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  id: UUID!
+  name: String!
+  userId: UUID!
+}
+
+type RelationshipTypeAggregate {
+  count: Int!
+  countDistinct: RelationshipTypeCountDistinctAggregate
+  countNonNull: RelationshipTypeCountNonNullAggregate
+  max: RelationshipTypeMaxAggregate
+  min: RelationshipTypeMinAggregate
+}
+
+type RelationshipTypeCountDistinctAggregate {
+  createdAt: Int!
+  id: Int!
+  name: Int!
+  userId: Int!
+}
+
+input RelationshipTypeCountDistinctHaving {
+  createdAt: AggregateNumberFilter
+  id: AggregateNumberFilter
+  name: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+type RelationshipTypeCountNonNullAggregate {
+  createdAt: Int!
+  id: Int!
+  name: Int!
+  userId: Int!
+}
+
+input RelationshipTypeCountNonNullHaving {
+  createdAt: AggregateNumberFilter
+  id: AggregateNumberFilter
+  name: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+"""Columns of RelationshipType that a query can be made distinct on"""
+enum RelationshipTypeDistinctColumn {
+  createdAt
+  id
+  name
+  userId
+}
+
+input RelationshipTypeFilters {
+  """Every branch matches"""
+  AND: [RelationshipTypeFilters!]
+
+  """Negates the nested filters"""
+  NOT: RelationshipTypeFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [RelationshipTypeFilters!]
+  createdAt: DateTimeFilter
+  id: IdFilter
+  name: StringFilter
+  userId: IdFilter
+}
+
+type RelationshipTypeGroupBy {
+  count: Int!
+  countDistinct: RelationshipTypeCountDistinctAggregate
+  countNonNull: RelationshipTypeCountNonNullAggregate
+  group: RelationshipTypeGroupKeys!
+  max: RelationshipTypeMaxAggregate
+  min: RelationshipTypeMinAggregate
+}
+
+"""Columns of RelationshipType that a query can group by"""
+enum RelationshipTypeGroupByColumn {
+  createdAt
+  id
+  name
+  userId
+}
+
+"""
+The grouped column values of one RelationshipType group. A column the query did not group by is null.
+"""
+type RelationshipTypeGroupKeys {
+  createdAt: DateTime
+  id: UUID
+  name: String
+  userId: UUID
+}
+
+"""Filters RelationshipType groups by their aggregated values"""
+input RelationshipTypeHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: RelationshipTypeCountDistinctHaving
+  countNonNull: RelationshipTypeCountNonNullHaving
+}
+
+type RelationshipTypeMaxAggregate {
+  createdAt: DateTime
+  id: UUID
+  name: String
+  userId: UUID
+}
+
+type RelationshipTypeMinAggregate {
+  createdAt: DateTime
+  id: UUID
+  name: String
+  userId: UUID
+}
+
+input RelationshipTypeOrderBy {
+  createdAt: InnerOrder
+  id: InnerOrder
+  name: InnerOrder
+  userId: InnerOrder
+}
+
+type RequestMagicLinkResult {
+  magicLink: String
+  ok: Boolean!
+}
+
+input StringFilter {
+  """Every branch matches"""
+  AND: [StringFilter!]
+
+  """Negates the nested operators"""
+  NOT: StringFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [StringFilter!]
+
+  """
+  Matches values containing the given string. `%`, `_` and `\` are matched literally.
+  """
+  contains: String
+
+  """
+  Matches values ending with the given string. `%`, `_` and `\` are matched literally.
+  """
+  endsWith: String
+
+  """Equal to"""
+  eq: String
+
+  """Greater than"""
+  gt: String
+
+  """Greater than or equal to"""
+  gte: String
+
+  """Case-insensitive `contains`."""
+  iContains: String
+
+  """Case-insensitive `endsWith`."""
+  iEndsWith: String
+
+  """Case-insensitive `startsWith`."""
+  iStartsWith: String
+  ilike: String
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [String!]
+
+  """
+  When true, every comparison operator in this object matches case-insensitively — `eq`, `ne`, the ordering operators, `inArray`/`notInArray` and the pattern operators all compare `lower(column)` against `lower(operand)`. Applies only to the operators beside it; a nested `AND`/`OR`/`NOT` branch sets its own.
+  """
+  insensitive: Boolean
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+  like: String
+
+  """Less than"""
+  lt: String
+
+  """Less than or equal to"""
+  lte: String
+
+  """Not equal to"""
+  ne: String
+  notIlike: String
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [String!]
+  notLike: String
+
+  """
+  Matches values starting with the given string. `%`, `_` and `\` are matched literally.
+  """
+  startsWith: String
+}
+
+type Task {
+  completedAt: DateTime
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  dueAt: DateTime
+  id: UUID!
+  notes: String
+  person(where: PersonFilters): Person
+  personId: UUID!
+  title: String!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+type TaskAggregate {
+  count: Int!
+  countDistinct: TaskCountDistinctAggregate
+  countNonNull: TaskCountNonNullAggregate
+  max: TaskMaxAggregate
+  min: TaskMinAggregate
+}
+
+type TaskCountDistinctAggregate {
+  completedAt: Int!
+  createdAt: Int!
+  dueAt: Int!
+  id: Int!
+  notes: Int!
+  personId: Int!
+  title: Int!
+  userId: Int!
+}
+
+input TaskCountDistinctHaving {
+  completedAt: AggregateNumberFilter
+  createdAt: AggregateNumberFilter
+  dueAt: AggregateNumberFilter
+  id: AggregateNumberFilter
+  notes: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  title: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+type TaskCountNonNullAggregate {
+  completedAt: Int!
+  createdAt: Int!
+  dueAt: Int!
+  id: Int!
+  notes: Int!
+  personId: Int!
+  title: Int!
+  userId: Int!
+}
+
+input TaskCountNonNullHaving {
+  completedAt: AggregateNumberFilter
+  createdAt: AggregateNumberFilter
+  dueAt: AggregateNumberFilter
+  id: AggregateNumberFilter
+  notes: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  title: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+"""Columns of Task that a query can be made distinct on"""
+enum TaskDistinctColumn {
+  completedAt
+  createdAt
+  dueAt
+  id
+  notes
+  personId
+  title
+  userId
+}
+
+input TaskFilters {
+  """Every branch matches"""
+  AND: [TaskFilters!]
+
+  """Negates the nested filters"""
+  NOT: TaskFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [TaskFilters!]
+  completedAt: DateTimeFilter
+  createdAt: DateTimeFilter
+  dueAt: DateTimeFilter
+  id: IdFilter
+  notes: StringFilter
+
+  """Matches rows whose person matches these filters"""
+  person: PersonFilters
+  personId: IdFilter
+  title: StringFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+type TaskGroupBy {
+  count: Int!
+  countDistinct: TaskCountDistinctAggregate
+  countNonNull: TaskCountNonNullAggregate
+  group: TaskGroupKeys!
+  max: TaskMaxAggregate
+  min: TaskMinAggregate
+}
+
+"""Columns of Task that a query can group by"""
+enum TaskGroupByColumn {
+  completedAt
+  createdAt
+  dueAt
+  id
+  notes
+  personId
+  title
+  userId
+}
+
+"""
+The grouped column values of one Task group. A column the query did not group by is null.
+"""
+type TaskGroupKeys {
+  completedAt: DateTime
+  createdAt: DateTime
+  dueAt: DateTime
+  id: UUID
+  notes: String
+  personId: UUID
+  title: String
+  userId: UUID
+}
+
+"""Filters Task groups by their aggregated values"""
+input TaskHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: TaskCountDistinctHaving
+  countNonNull: TaskCountNonNullHaving
+}
+
+input TaskListRelationFilter {
+  """Every related row matches"""
+  every: TaskFilters
+
+  """No related row matches"""
+  none: TaskFilters
+
+  """At least one related row matches"""
+  some: TaskFilters
+}
+
+type TaskMaxAggregate {
+  completedAt: DateTime
+  createdAt: DateTime
+  dueAt: DateTime
+  id: UUID
+  notes: String
+  personId: UUID
+  title: String
+  userId: UUID
+}
+
+type TaskMinAggregate {
+  completedAt: DateTime
+  createdAt: DateTime
+  dueAt: DateTime
+  id: UUID
+  notes: String
+  personId: UUID
+  title: String
+  userId: UUID
+}
+
+input TaskOrderBy {
+  completedAt: InnerOrder
+  createdAt: InnerOrder
+  dueAt: InnerOrder
+  id: InnerOrder
+  notes: InnerOrder
+
+  """Order by columns of the related person row"""
+  person: PersonOrderBy
+  personId: InnerOrder
+  title: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+"""
+A field whose value is a generic Universally Unique Identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier.
+"""
+scalar UUID
+
+type UpcomingDateEntry {
+  date: String!
+  daysUntil: Int!
+  description: String
+  id: String!
+  name: String!
+  nextDate: String!
+  personFirstName: String!
+  personId: String!
+  personLastName: String!
+  recurrence: String
+}
+
+input UpdateAddressInput {
+  city: String
+  country: String
+  createdAt: DateTime
+  id: UUID
+  isPrimary: Boolean
+  label: String
+  line1: String
+  line2: String
+  personId: UUID
+  postalCode: String
+  state: String
+  type: AddressTypeEnum
+}
+
+"""
+One entry of a batch update of Address: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateAddressManyInput {
+  set: UpdateAddressInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: AddressFilters
+}
+
+input UpdateContactInfoInput {
+  createdAt: DateTime
+  id: UUID
+  isPrimary: Boolean
+  label: String
+  personId: UUID
+  type: ContactTypeEnum
+  value: String
+}
+
+"""
+One entry of a batch update of ContactInfo: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateContactInfoManyInput {
+  set: UpdateContactInfoInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: ContactInfoFilters
+}
+
+input UpdateImportantDateInput {
+  date: String
+  description: String
+  id: UUID
+  milestoneType: ImportantDatesMilestoneTypeEnum
+  name: String
+  personId: UUID
+  recurrence: String
+}
+
+"""
+One entry of a batch update of ImportantDate: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateImportantDateManyInput {
+  set: UpdateImportantDateInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: ImportantDateFilters
+}
+
+input UpdateImportantDateTagInput {
+  importantDateId: UUID
+  labelId: UUID
+}
+
+"""
+One entry of a batch update of ImportantDateTag: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateImportantDateTagManyInput {
+  set: UpdateImportantDateTagInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: ImportantDateTagFilters
+}
+
+input UpdateInteractionInput {
+  channel: String
+  id: UUID
+  note: String
+  occurredAt: DateTime
+  personId: UUID
+  sentiment: String
+}
+
+"""
+One entry of a batch update of Interaction: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateInteractionManyInput {
+  set: UpdateInteractionInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: InteractionFilters
+}
+
+input UpdateInteractionTagInput {
+  interactionId: UUID
+  labelId: UUID
+}
+
+"""
+One entry of a batch update of InteractionTag: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateInteractionTagManyInput {
+  set: UpdateInteractionTagInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: InteractionTagFilters
+}
+
+input UpdateLabelInput {
+  color: String
+  id: UUID
+  label: String
+}
+
+"""
+One entry of a batch update of Label: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateLabelManyInput {
+  set: UpdateLabelInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: LabelFilters
+}
+
+input UpdateNoteInput {
+  body: String
+  id: UUID
+  personId: UUID
+}
+
+"""
+One entry of a batch update of Note: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateNoteManyInput {
+  set: UpdateNoteInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: NoteFilters
+}
+
+input UpdateNoteMentionInput {
+  mentionedPersonId: UUID
+  noteId: UUID
+}
+
+"""
+One entry of a batch update of NoteMention: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateNoteMentionManyInput {
+  set: UpdateNoteMentionInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: NoteMentionFilters
+}
+
+input UpdateNoteTagInput {
+  labelId: UUID
+  noteId: UUID
+}
+
+"""
+One entry of a batch update of NoteTag: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateNoteTagManyInput {
+  set: UpdateNoteTagInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: NoteTagFilters
+}
+
+input UpdatePersonInput {
+  createdAt: DateTime
+  email: String
+  firstName: String
+  id: UUID
+  lastName: String
+  updatedAt: DateTime
+}
+
+input UpdatePersonLabelInput {
+  labelId: UUID
+  personId: UUID
+}
+
+"""
+One entry of a batch update of PersonLabel: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdatePersonLabelManyInput {
+  set: UpdatePersonLabelInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: PersonLabelFilters
+}
+
+"""
+One entry of a batch update of Person: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdatePersonManyInput {
+  set: UpdatePersonInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: PersonFilters
+}
+
+input UpdatePersonRelationshipInput {
+  fromPersonId: UUID
+  id: UUID
+  toPersonId: UUID
+  type: String
+}
+
+"""
+One entry of a batch update of PersonRelationship: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdatePersonRelationshipManyInput {
+  set: UpdatePersonRelationshipInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: PersonRelationshipFilters
+}
+
+input UpdateRelationshipTypeInput {
+  createdAt: DateTime
+  id: UUID
+  name: String
+}
+
+"""
+One entry of a batch update of RelationshipType: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateRelationshipTypeManyInput {
+  set: UpdateRelationshipTypeInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: RelationshipTypeFilters
+}
+
+input UpdateTaskInput {
+  completedAt: DateTime
+  createdAt: DateTime
+  dueAt: DateTime
+  id: UUID
+  notes: String
+  personId: UUID
+  title: String
+}
+
+"""
+One entry of a batch update of Task: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateTaskManyInput {
+  set: UpdateTaskInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: TaskFilters
+}
+
+input UpdateUserPersonInput {
+  avatarPath: String
+  contactFrequency: String
+  createdAt: DateTime
+  firstMetDate: String
+  howWeMet: String
+  personId: UUID
+}
+
+"""
+One entry of a batch update of UserPerson: the rows `where` matches get this entry's `set` applied.
+"""
+input UpdateUserPersonManyInput {
+  set: UpdateUserPersonInput!
+
+  """Rows this entry updates. An omitted filter updates every row."""
+  where: UserPersonFilters
+}
+
+type User {
+  addresses(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [AddressDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: AddressOrderBy
+    where: AddressFilters
+  ): [Address!]!
+  addressesAggregate(where: AddressFilters): AddressAggregate!
+  contactInfos(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [ContactInfoDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ContactInfoOrderBy
+    where: ContactInfoFilters
+  ): [ContactInfo!]!
+  contactInfosAggregate(where: ContactInfoFilters): ContactInfoAggregate!
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  email: String!
+  id: UUID!
+  importantDates(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [ImportantDateDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ImportantDateOrderBy
+    where: ImportantDateFilters
+  ): [ImportantDate!]!
+  importantDatesAggregate(where: ImportantDateFilters): ImportantDateAggregate!
+  interactions(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [InteractionDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: InteractionOrderBy
+    where: InteractionFilters
+  ): [Interaction!]!
+  interactionsAggregate(where: InteractionFilters): InteractionAggregate!
+  labels(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [LabelDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: LabelOrderBy
+    where: LabelFilters
+  ): [Label!]!
+  labelsAggregate(where: LabelFilters): LabelAggregate!
+  name: String
+  notes(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [NoteDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: NoteOrderBy
+    where: NoteFilters
+  ): [Note!]!
+  notesAggregate(where: NoteFilters): NoteAggregate!
+  personRelationships(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [PersonRelationshipDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: PersonRelationshipOrderBy
+    where: PersonRelationshipFilters
+  ): [PersonRelationship!]!
+  personRelationshipsAggregate(where: PersonRelationshipFilters): PersonRelationshipAggregate!
+  tasks(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [TaskDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TaskOrderBy
+    where: TaskFilters
+  ): [Task!]!
+  tasksAggregate(where: TaskFilters): TaskAggregate!
+  updatedAt: DateTime!
+  userPersons(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [UserPersonDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: UserPersonOrderBy
+    where: UserPersonFilters
+  ): [UserPerson!]!
+  userPersonsAggregate(where: UserPersonFilters): UserPersonAggregate!
+}
+
+type UserAggregate {
+  count: Int!
+  countDistinct: UserCountDistinctAggregate
+  countNonNull: UserCountNonNullAggregate
+  max: UserMaxAggregate
+  min: UserMinAggregate
+}
+
+type UserCountDistinctAggregate {
+  createdAt: Int!
+  email: Int!
+  id: Int!
+  name: Int!
+  updatedAt: Int!
+}
+
+input UserCountDistinctHaving {
+  createdAt: AggregateNumberFilter
+  email: AggregateNumberFilter
+  id: AggregateNumberFilter
+  name: AggregateNumberFilter
+  updatedAt: AggregateNumberFilter
+}
+
+type UserCountNonNullAggregate {
+  createdAt: Int!
+  email: Int!
+  id: Int!
+  name: Int!
+  updatedAt: Int!
+}
+
+input UserCountNonNullHaving {
+  createdAt: AggregateNumberFilter
+  email: AggregateNumberFilter
+  id: AggregateNumberFilter
+  name: AggregateNumberFilter
+  updatedAt: AggregateNumberFilter
+}
+
+"""Columns of User that a query can be made distinct on"""
+enum UserDistinctColumn {
+  createdAt
+  email
+  id
+  name
+  updatedAt
+}
+
+input UserFilters {
+  """Every branch matches"""
+  AND: [UserFilters!]
+
+  """Negates the nested filters"""
+  NOT: UserFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [UserFilters!]
+  addresses: AddressListRelationFilter
+  contactInfos: ContactInfoListRelationFilter
+  createdAt: DateTimeFilter
+  email: StringFilter
+  id: IdFilter
+  importantDates: ImportantDateListRelationFilter
+  interactions: InteractionListRelationFilter
+  labels: LabelListRelationFilter
+  name: StringFilter
+  notes: NoteListRelationFilter
+  personRelationships: PersonRelationshipListRelationFilter
+  tasks: TaskListRelationFilter
+  updatedAt: DateTimeFilter
+  userPersons: UserPersonListRelationFilter
+}
+
+type UserGroupBy {
+  count: Int!
+  countDistinct: UserCountDistinctAggregate
+  countNonNull: UserCountNonNullAggregate
+  group: UserGroupKeys!
+  max: UserMaxAggregate
+  min: UserMinAggregate
+}
+
+"""Columns of User that a query can group by"""
+enum UserGroupByColumn {
+  createdAt
+  email
+  id
+  name
+  updatedAt
+}
+
+"""
+The grouped column values of one User group. A column the query did not group by is null.
+"""
+type UserGroupKeys {
+  createdAt: DateTime
+  email: String
+  id: UUID
+  name: String
+  updatedAt: DateTime
+}
+
+"""Filters User groups by their aggregated values"""
+input UserHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: UserCountDistinctHaving
+  countNonNull: UserCountNonNullHaving
+}
+
+type UserMaxAggregate {
+  createdAt: DateTime
+  email: String
+  id: UUID
+  name: String
+  updatedAt: DateTime
+}
+
+type UserMinAggregate {
+  createdAt: DateTime
+  email: String
+  id: UUID
+  name: String
+  updatedAt: DateTime
+}
+
+input UserOrderBy {
+  createdAt: InnerOrder
+  email: InnerOrder
+  id: InnerOrder
+  name: InnerOrder
+  updatedAt: InnerOrder
+}
+
+type UserPerson {
+  avatarPath: String
+  contactFrequency: String
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  firstMetDate: Date
+  howWeMet: String
+  person(where: PersonFilters): Person
+  personId: UUID!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+type UserPersonAggregate {
+  count: Int!
+  countDistinct: UserPersonCountDistinctAggregate
+  countNonNull: UserPersonCountNonNullAggregate
+  max: UserPersonMaxAggregate
+  min: UserPersonMinAggregate
+}
+
+type UserPersonCountDistinctAggregate {
+  avatarPath: Int!
+  contactFrequency: Int!
+  createdAt: Int!
+  firstMetDate: Int!
+  howWeMet: Int!
+  personId: Int!
+  userId: Int!
+}
+
+input UserPersonCountDistinctHaving {
+  avatarPath: AggregateNumberFilter
+  contactFrequency: AggregateNumberFilter
+  createdAt: AggregateNumberFilter
+  firstMetDate: AggregateNumberFilter
+  howWeMet: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+type UserPersonCountNonNullAggregate {
+  avatarPath: Int!
+  contactFrequency: Int!
+  createdAt: Int!
+  firstMetDate: Int!
+  howWeMet: Int!
+  personId: Int!
+  userId: Int!
+}
+
+input UserPersonCountNonNullHaving {
+  avatarPath: AggregateNumberFilter
+  contactFrequency: AggregateNumberFilter
+  createdAt: AggregateNumberFilter
+  firstMetDate: AggregateNumberFilter
+  howWeMet: AggregateNumberFilter
+  personId: AggregateNumberFilter
+  userId: AggregateNumberFilter
+}
+
+"""Columns of UserPerson that a query can be made distinct on"""
+enum UserPersonDistinctColumn {
+  avatarPath
+  contactFrequency
+  createdAt
+  firstMetDate
+  howWeMet
+  personId
+  userId
+}
+
+input UserPersonFilters {
+  """Every branch matches"""
+  AND: [UserPersonFilters!]
+
+  """Negates the nested filters"""
+  NOT: UserPersonFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [UserPersonFilters!]
+  avatarPath: StringFilter
+  contactFrequency: StringFilter
+  createdAt: DateTimeFilter
+  firstMetDate: StringFilter
+  howWeMet: StringFilter
+
+  """Matches rows whose person matches these filters"""
+  person: PersonFilters
+  personId: IdFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+type UserPersonGroupBy {
+  count: Int!
+  countDistinct: UserPersonCountDistinctAggregate
+  countNonNull: UserPersonCountNonNullAggregate
+  group: UserPersonGroupKeys!
+  max: UserPersonMaxAggregate
+  min: UserPersonMinAggregate
+}
+
+"""Columns of UserPerson that a query can group by"""
+enum UserPersonGroupByColumn {
+  avatarPath
+  contactFrequency
+  createdAt
+  firstMetDate
+  howWeMet
+  personId
+  userId
+}
+
+"""
+The grouped column values of one UserPerson group. A column the query did not group by is null.
+"""
+type UserPersonGroupKeys {
+  avatarPath: String
+  contactFrequency: String
+  createdAt: DateTime
+  firstMetDate: Date
+  howWeMet: String
+  personId: UUID
+  userId: UUID
+}
+
+"""Filters UserPerson groups by their aggregated values"""
+input UserPersonHaving {
+  """Filters groups by how many rows they contain"""
+  count: AggregateNumberFilter
+  countDistinct: UserPersonCountDistinctHaving
+  countNonNull: UserPersonCountNonNullHaving
+}
+
+input UserPersonListRelationFilter {
+  """Every related row matches"""
+  every: UserPersonFilters
+
+  """No related row matches"""
+  none: UserPersonFilters
+
+  """At least one related row matches"""
+  some: UserPersonFilters
+}
+
+type UserPersonMaxAggregate {
+  avatarPath: String
+  contactFrequency: String
+  createdAt: DateTime
+  firstMetDate: Date
+  howWeMet: String
+  personId: UUID
+  userId: UUID
+}
+
+type UserPersonMinAggregate {
+  avatarPath: String
+  contactFrequency: String
+  createdAt: DateTime
+  firstMetDate: Date
+  howWeMet: String
+  personId: UUID
+  userId: UUID
+}
+
+input UserPersonOrderBy {
+  avatarPath: InnerOrder
+  contactFrequency: InnerOrder
+  createdAt: InnerOrder
+  firstMetDate: InnerOrder
+  howWeMet: InnerOrder
+
+  """Order by columns of the related person row"""
+  person: PersonOrderBy
+  personId: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}

@@ -21,30 +21,27 @@
 #     PUBLIC_HOST=docker.lan in .env so the URLs the apps put in magic links
 #     and CORS headers point at a host that actually answers.
 #
-# ── Why NODE_ENV is empty for three services ─────────────────────────────────
-# auto-cal, notes and philotes all serve GraphQL through Apollo Server, which
-# never sets `introspection` explicitly — so it takes Apollo's default,
-# `NODE_ENV !== 'production'`. Under NODE_ENV=production they refuse
-# introspection, the gateway cannot read their schema, and they cannot be
-# stitched at all. Nothing in those repos exposes a knob for it, and this
-# project's rule is that no app repo changes to appear on the dashboard.
+# ── Production mode, and how the gateway still stitches ──────────────────────
+# Every app runs with NODE_ENV=production. auto-cal, notes and philotes serve
+# GraphQL through Apollo Server, which then refuses introspection, so the
+# gateway cannot read their schemas live. It falls back to the committed
+# snapshot in schemas/<name>.graphql (baked into the dashboard image) and
+# still executes every query against the live app. Keep snapshots in step
+# with the image tags below: `npm run schemas:snapshot -- <name>` against a
+# dev instance of the same version. The dashboard's `plugins` query reports
+# which plugins were stitched from a snapshot.
 #
-# So this stack leaves NODE_ENV empty for them, which is NOT free. Per app:
+# ── Auth ─────────────────────────────────────────────────────────────────────
+# The gateway never mints identity. Each app verifies its own tokens exactly
+# as it does standalone; the gateway forwards the credential the browser holds
+# for that app (⚙ panel → x-<app>-token) or PLUGIN_<APP>_TOKEN, else the
+# caller's Authorization. Each app signs its own JWTs, so give every app its
+# OWN secret — a shared one would let a token from one app verify in another.
 #
-#   auto-cal  any 36-char UUID sent as a bearer token authenticates as that
-#             user id (server/src/index.ts:122), and magic links come back in
-#             the API response. Note its own compose already sets
-#             BYPASS_AUTH_UUID, so this widens a door that is ajar.
-#   notes     stops serving its built Expo web client — /graphql still works,
-#             but http://<host>:3002 no longer shows the notes UI.
-#   philotes  skips its startup check that JWT_SECRET is strong (this file
-#             requires one anyway), and returns magic links in responses.
-#
-# All three are LAN-only-single-user tradeoffs, the same footing as the
-# gateway's own unauthenticated /health and /reload. Set <APP>_NODE_ENV=production
-# in .env to take any of them back — that app then drops off the dashboard.
-# The clean fix is for the gateway to fall back to a stored SDL when
-# introspection is refused; until then, this is the knob.
+# AUTOCAL_AUTH_MAGIC_LINK=false (and NOTES_AUTH_MAGIC_LINK) skips the emailed
+# link: entering an email in the ⚙ panel signs straight in. Anyone who can
+# reach the port can then sign in as any address — secure local networks only.
+# With links on, those apps need an email provider or an API key pasted in ⚙.
 
 name: cubicecho
 
@@ -74,13 +71,12 @@ services:
     image: vantreeseba/auto-cal:${AUTOCAL_TAG:-latest}
     restart: unless-stopped
     environment:
-      NODE_ENV: ${AUTOCAL_NODE_ENV-}
+      NODE_ENV: production
       TZ: ${TZ:-UTC}
       PORT: "3001"
       DATABASE_URL: postgresql://autocal:autocal@postgres:5432/autocal
-      # Bypass magic-link auth for the seeded demo user, as its own compose does.
-      BYPASS_AUTH_UUID: ${AUTOCAL_BYPASS_AUTH_UUID:-00000000-0000-0000-0000-000000000001}
-      EXPOSE_MAGIC_LINK: "true"
+      JWT_SECRET: ${AUTOCAL_JWT_SECRET:?set AUTOCAL_JWT_SECRET in .env — openssl rand -hex 32}
+      AUTH_MAGIC_LINK: ${AUTOCAL_AUTH_MAGIC_LINK:-true}
       APP_URL: ${AUTOCAL_APP_URL:-http://${PUBLIC_HOST:-localhost}:3001}
     ports:
       - "3001:3001"
@@ -96,14 +92,14 @@ services:
 #    build: ../notes
 #    restart: unless-stopped
 #    environment:
-#      NODE_ENV: ${NOTES_NODE_ENV-}
+#      NODE_ENV: production
 #      TZ: ${TZ:-UTC}
 #      PORT: "4000"
 #      # Postgres rather than the image's default embedded PGlite.
 #      DATABASE_URL: postgres://notes:notes@postgres:5432/notes
 #      APP_URL: ${NOTES_APP_URL:-http://${PUBLIC_HOST:-localhost}:3002}
-#      DEMO_USER_ID: ${NOTES_DEMO_USER_ID:-00000000-0000-0000-0000-000000000001}
-#      EXPOSE_MAGIC_LINK: "true"
+#      JWT_SECRET: ${NOTES_JWT_SECRET:?set NOTES_JWT_SECRET in .env — openssl rand -hex 32}
+#      AUTH_MAGIC_LINK: ${NOTES_AUTH_MAGIC_LINK:-true}
 #    ports:
 #      # Published on 3002; the container still listens on its own 4000.
 #      - "3002:4000"
@@ -115,7 +111,7 @@ services:
     image: vantreeseba/philotes:${PHILOTES_TAG:-latest}
     restart: unless-stopped
     environment:
-      NODE_ENV: ${PHILOTES_NODE_ENV-}
+      NODE_ENV: production
       TZ: ${TZ:-UTC}
       PORT: "3001"
       DATABASE_URL: postgres://philotes:philotes@postgres:5432/philotes
@@ -131,17 +127,15 @@ services:
         condition: service_healthy
 
   # ── eunomia — no published image yet ───────────────────────────────────────
-  # Not on Docker Hub. It is also the one app that needs no NODE_ENV tradeoff
-  # (Yoga allows introspection regardless), so it is the most valuable one to
-  # publish. Push `vantreeseba/eunomia` and uncomment.
+  # Not on Docker Hub. Push `vantreeseba/eunomia` and uncomment. It serves
+  # GraphQL through Yoga, which allows introspection regardless of NODE_ENV,
+  # so it needs no schema snapshot.
 #  eunomia:
 #    build:
 #      context: ../eunomia
 #      dockerfile: apps/server/Dockerfile
 #    restart: unless-stopped
 #    environment:
-#      # Serves GraphQL through Yoga, which allows introspection regardless of
-#      # NODE_ENV — this is the one app that needs no tradeoff to be stitched.
 #      TZ: ${TZ:-UTC}
 #      PORT: "4000"
 #      DATABASE_URL: postgres://eunomia:eunomia@postgres:5432/eunomia
@@ -198,7 +192,7 @@ services:
     depends_on:
       # Only ordering, and only for services that exist here — the gateway
       # boots against whatever is up, reports the rest as down, and
-      # `curl -XPOST <host>:3000/reload` picks up an app that started late
+      # the ⟲ button (the `reloadPlugins` mutation) picks up an app that started late
       # (or one running outside this stack) without restarting anything.
       - autocal
       - philotes

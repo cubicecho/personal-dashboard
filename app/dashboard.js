@@ -312,7 +312,7 @@ document.getElementById('settings-toggle').addEventListener('click', () => {
 });
 document.getElementById('save-tokens').addEventListener('click', () => {
   const tokens = {};
-  for (const input of dialog.querySelectorAll('input')) {
+  for (const input of dialog.querySelectorAll('#token-fields input')) {
     const name = input.id.replace(/^token-/, '');
     if (input.value.trim()) tokens[name] = input.value.trim();
   }
@@ -324,19 +324,104 @@ document.getElementById('refresh').addEventListener('click', refresh);
 document
   .getElementById('reload-plugins')
   .addEventListener('click', async () => {
-    const res = await fetch('/reload', { method: 'POST' }).catch(() => null);
-    if (!res?.ok) {
-      const why = await res?.json().then(
-        (b) => b.error,
-        () => null,
-      );
+    try {
+      await gql('mutation { reloadPlugins { name } }');
+    } catch (err) {
       chips.replaceChildren(
-        el('span', 'chip bad', `reload failed${why ? `: ${why}` : ''}`),
+        el('span', 'chip bad', `reload failed: ${err.message}`),
       );
       return;
     }
     refresh();
   });
+
+// ── Sign in by email ─────────────────────────────────────────────────────────
+// Each app keeps its own users and signs its own JWTs, so "sign in" means one
+// stitched `<plugin>_requestMagicLink` per app. An app running with
+// AUTH_MAGIC_LINK=false answers with a session token straight away, which is
+// stored like a pasted one and forwarded by the gateway as that app's bearer.
+// With magic links on, the app emails a link instead — it signs you in to that
+// app, not here, so a pasted API key is the way in for those.
+//
+// Only apps listed here are tried: a `token` on requestMagicLink means
+// different things per app. eunomia's is a single-use magic token that still
+// needs verifyMagicLink, and its session would ride Authorization, not the
+// x-api-key header its dashboard token goes in. The schema check below still
+// skips an older image whose result has no `token` field yet.
+const DIRECT_SIGN_IN = ['autocal', 'notes'];
+
+async function signInByEmail(email) {
+  const { data } = await gql(`{
+    __type(name: "Mutation") {
+      fields { name type { fields { name } ofType { fields { name } } } }
+    }
+  }`);
+  const mutations = data.__type?.fields ?? [];
+  const tokens = loadTokens();
+  const results = [];
+  for (const { name } of pluginStatuses) {
+    if (!DIRECT_SIGN_IN.includes(name)) {
+      results.push([name, false, 'no email sign-in — paste a token']);
+      continue;
+    }
+    const field = mutations.find((f) => f.name === `${name}_requestMagicLink`);
+    const returns = (
+      field?.type.fields ??
+      field?.type.ofType?.fields ??
+      []
+    ).map((f) => f.name);
+    if (!returns.includes('token')) {
+      results.push([name, false, 'no email sign-in — paste a token']);
+      continue;
+    }
+    try {
+      const res = await gql(
+        `mutation ($email: String!) { r: ${field.name}(email: $email) { token } }`,
+        { email },
+      );
+      const token = res.data.r?.token;
+      if (token) tokens[name] = token;
+      results.push(
+        token
+          ? [name, true, 'signed in']
+          : [
+              name,
+              false,
+              res.errors[0]?.message ??
+                'magic link emailed — it signs in to the app itself; paste a token here',
+            ],
+      );
+    } catch (err) {
+      results.push([name, false, err.message]);
+    }
+  }
+  saveTokens(tokens);
+  return results;
+}
+
+document.getElementById('sign-in').addEventListener('click', async () => {
+  const email = document.getElementById('sign-in-email').value.trim();
+  const out = document.getElementById('sign-in-results');
+  if (!email) return;
+  out.replaceChildren(el('li', 'loading', 'Signing in…'));
+  try {
+    const results = await signInByEmail(email);
+    out.replaceChildren(
+      ...results.map(([name, ok, text]) =>
+        el('li', ok ? '' : 'sub', `${name}: ${text}`),
+      ),
+    );
+    // Reflect new tokens in the fields below without closing the dialog.
+    const tokens = loadTokens();
+    for (const input of dialog.querySelectorAll('#token-fields input')) {
+      const name = input.id.replace(/^token-/, '');
+      if (tokens[name]) input.value = tokens[name];
+    }
+    refresh();
+  } catch (err) {
+    out.replaceChildren(el('li', 'error', err.message));
+  }
+});
 
 refresh();
 setInterval(refresh, 5 * 60 * 1000);

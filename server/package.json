@@ -8,7 +8,8 @@
     "dev": "node --watch --env-file-if-exists=../.env src/index.ts",
     "start": "node --env-file-if-exists=../.env src/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.ts"
+    "test": "node --test test/*.test.ts",
+    "schemas:snapshot": "node --env-file-if-exists=../.env scripts/snapshot-schemas.ts"
   },
   "dependencies": {
     "@graphql-tools/executor-http": "^2.1.1",

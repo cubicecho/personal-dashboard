@@ -8,7 +8,8 @@
 import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { createYoga } from 'graphql-yoga';
+import { NoSchemaIntrospectionCustomRule, printSchema } from 'graphql';
+import { type Plugin, createYoga } from 'graphql-yoga';
 
 const schema = makeExecutableSchema({
   typeDefs: /* GraphQL */ `
@@ -31,6 +32,9 @@ const schema = makeExecutableSchema({
   },
 });
 
+/** The fixture's SDL — what a committed `schemas/<name>.graphql` would hold. */
+export const fakePluginSdl = printSchema(schema);
+
 export interface FakePlugin {
   /** The /graphql endpoint to hand to PLUGIN_<NAME>_URL. */
   url: string;
@@ -39,9 +43,22 @@ export interface FakePlugin {
 }
 
 /** Start the fixture. Port 0 (the default) picks a free one — tests can run
- * concurrently and need nothing listening beforehand. */
-export function startFakePlugin(port = 0): Promise<FakePlugin> {
-  const yoga = createYoga({ schema, graphqlEndpoint: '/graphql' });
+ * concurrently and need nothing listening beforehand. `introspection: false`
+ * mimics an Apollo app under NODE_ENV=production. */
+export function startFakePlugin(
+  port = 0,
+  { introspection = true }: { introspection?: boolean } = {},
+): Promise<FakePlugin> {
+  const refuseIntrospection: Plugin = {
+    onValidate({ addValidationRule }) {
+      addValidationRule(NoSchemaIntrospectionCustomRule);
+    },
+  };
+  const yoga = createYoga({
+    schema,
+    graphqlEndpoint: '/graphql',
+    plugins: introspection ? [] : [refuseIntrospection],
+  });
   const server = createServer(yoga);
   return new Promise((resolve) => {
     server.listen(port, '127.0.0.1', () => {
