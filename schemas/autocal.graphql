@@ -1,0 +1,2211 @@
+# Schema snapshot of the autocal plugin. The gateway uses it only when
+# the app refuses introspection (NODE_ENV=production). Regenerate with
+#   npm run schemas:snapshot -- autocal
+
+type ActivityType {
+  children: [ActivityType!]!
+  color: String!
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  habits(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [HabitDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: HabitOrderBy
+    where: HabitFilters
+  ): [Habit!]!
+  id: UUID!
+  name: String!
+  parent: ActivityType
+  parentId: UUID
+  timeBlocks(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [TimeBlockDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TimeBlockOrderBy
+    where: TimeBlockFilters
+  ): [TimeBlock!]!
+  todoLists(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [TodoListDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TodoListOrderBy
+    where: TodoListFilters
+  ): [TodoList!]!
+  updatedAt: DateTime!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+"""Columns of ActivityType that a query can be made distinct on"""
+enum ActivityTypeDistinctColumn {
+  color
+  createdAt
+  id
+  name
+  parentId
+  updatedAt
+  userId
+}
+
+input ActivityTypeFilters {
+  """Every branch matches"""
+  AND: [ActivityTypeFilters!]
+
+  """Negates the nested filters"""
+  NOT: ActivityTypeFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [ActivityTypeFilters!]
+  color: StringFilter
+  createdAt: DateTimeFilter
+  habits: HabitListRelationFilter
+  id: IdFilter
+  name: StringFilter
+  parentId: IdFilter
+  timeBlocks: TimeBlockListRelationFilter
+  todoLists: TodoListListRelationFilter
+  updatedAt: DateTimeFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+input ActivityTypeListRelationFilter {
+  """Every related row matches"""
+  every: ActivityTypeFilters
+
+  """No related row matches"""
+  none: ActivityTypeFilters
+
+  """At least one related row matches"""
+  some: ActivityTypeFilters
+}
+
+input ActivityTypeOrderBy {
+  color: InnerOrder
+  createdAt: InnerOrder
+  id: InnerOrder
+  name: InnerOrder
+  parentId: InnerOrder
+  updatedAt: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type ActivityTypeStats {
+  activityTypeId: String!
+  activityTypeName: String!
+  completedTodos: Int!
+  totalHabits: Int!
+  totalTodos: Int!
+}
+
+type ApiKey {
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  expiresAt: DateTime
+  id: UUID!
+  keyPrefix: String!
+  lastUsedAt: DateTime
+  name: String!
+  revokedAt: DateTime
+  scopes: [String!]!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+"""Columns of ApiKey that a query can be made distinct on"""
+enum ApiKeyDistinctColumn {
+  createdAt
+  expiresAt
+  id
+  keyPrefix
+  lastUsedAt
+  name
+  revokedAt
+  scopes
+  userId
+}
+
+input ApiKeyFilters {
+  """Every branch matches"""
+  AND: [ApiKeyFilters!]
+
+  """Negates the nested filters"""
+  NOT: ApiKeyFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [ApiKeyFilters!]
+  createdAt: DateTimeFilter
+  expiresAt: DateTimeFilter
+  id: IdFilter
+  keyPrefix: StringFilter
+  lastUsedAt: DateTimeFilter
+  name: StringFilter
+  revokedAt: DateTimeFilter
+  scopes: StringArrayFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+input ApiKeyListRelationFilter {
+  """Every related row matches"""
+  every: ApiKeyFilters
+
+  """No related row matches"""
+  none: ApiKeyFilters
+
+  """At least one related row matches"""
+  some: ApiKeyFilters
+}
+
+input ApiKeyOrderBy {
+  createdAt: InnerOrder
+  expiresAt: InnerOrder
+  id: InnerOrder
+  keyPrefix: InnerOrder
+  lastUsedAt: InnerOrder
+  name: InnerOrder
+  revokedAt: InnerOrder
+  scopes: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+input BooleanFilter {
+  """Every branch matches"""
+  AND: [BooleanFilter!]
+
+  """Negates the nested operators"""
+  NOT: BooleanFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [BooleanFilter!]
+
+  """
+  Matches values containing the given string. `%`, `_` and `\` are matched literally.
+  """
+  contains: String
+
+  """
+  Matches values ending with the given string. `%`, `_` and `\` are matched literally.
+  """
+  endsWith: String
+
+  """Equal to"""
+  eq: Boolean
+
+  """Greater than"""
+  gt: Boolean
+
+  """Greater than or equal to"""
+  gte: Boolean
+
+  """Case-insensitive `contains`."""
+  iContains: String
+
+  """Case-insensitive `endsWith`."""
+  iEndsWith: String
+
+  """Case-insensitive `startsWith`."""
+  iStartsWith: String
+  ilike: String
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [Boolean!]
+
+  """
+  When true, every comparison operator in this object matches case-insensitively — `eq`, `ne`, the ordering operators, `inArray`/`notInArray` and the pattern operators all compare `lower(column)` against `lower(operand)`. Applies only to the operators beside it; a nested `AND`/`OR`/`NOT` branch sets its own.
+  """
+  insensitive: Boolean
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+  like: String
+
+  """Less than"""
+  lt: Boolean
+
+  """Less than or equal to"""
+  lte: Boolean
+
+  """Not equal to"""
+  ne: Boolean
+  notIlike: String
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [Boolean!]
+  notLike: String
+
+  """
+  Matches values starting with the given string. `%`, `_` and `\` are matched literally.
+  """
+  startsWith: String
+}
+
+input CompleteHabitArgs {
+  completedAt: String
+  habitId: ID!
+  scheduledAt: String
+}
+
+input CreateActivityTypeArgs {
+  color: String
+  name: String!
+}
+
+type CreateApiKeyResult {
+  apiKey: ApiKey!
+  token: String!
+}
+
+input CreateHabitArgs {
+  activityTypeId: ID!
+  description: String
+  estimatedLength: Int
+  frequencyCount: Int!
+  frequencyUnit: String!
+  minTimeBetweenInstances: Int
+  pomodoroEnabled: Boolean
+  pomodoroLongBreakLength: Int
+  pomodoroMaxPerDay: Int
+  pomodoroShortBreakLength: Int
+  pomodoroUnitLength: Int
+  pomodoroUnitsBeforeLongBreak: Int
+  priority: Int
+  title: String!
+}
+
+input CreateManualEventArgs {
+  color: String
+  description: String
+  endAt: String!
+  startAt: String!
+  title: String!
+}
+
+input CreateProjectArgs {
+  color: String
+  createList: Boolean
+  name: String!
+  parentActivityTypeId: ID
+}
+
+input CreateProjectNoteArgs {
+  content: String
+  projectId: ID!
+  title: String!
+}
+
+input CreateTimeBlockArgs {
+  activityTypeId: ID!
+  daysOfWeek: [Int!]!
+  endTime: String!
+  priority: Int
+  startTime: String!
+}
+
+input CreateTodoArgs {
+  description: String
+  dueAt: String
+  estimatedLength: Int
+  listId: ID!
+  priority: Int
+  scheduledAt: String
+  title: String!
+}
+
+input CreateTodoListArgs {
+  activityTypeId: ID!
+  defaultEstimatedLength: Int
+  defaultPriority: Int
+  description: String
+  name: String!
+}
+
+type DataChangedEvent {
+  entity: DataEntity!
+  ids: [ID!]!
+}
+
+enum DataEntity {
+  activityType
+  habit
+  manualEvent
+  project
+  timeBlock
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+input DateTimeFilter {
+  """Every branch matches"""
+  AND: [DateTimeFilter!]
+
+  """Negates the nested operators"""
+  NOT: DateTimeFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [DateTimeFilter!]
+
+  """
+  Matches values containing the given string. `%`, `_` and `\` are matched literally.
+  """
+  contains: String
+
+  """
+  Matches values ending with the given string. `%`, `_` and `\` are matched literally.
+  """
+  endsWith: String
+
+  """Equal to"""
+  eq: DateTime
+
+  """Greater than"""
+  gt: DateTime
+
+  """Greater than or equal to"""
+  gte: DateTime
+
+  """Case-insensitive `contains`."""
+  iContains: String
+
+  """Case-insensitive `endsWith`."""
+  iEndsWith: String
+
+  """Case-insensitive `startsWith`."""
+  iStartsWith: String
+  ilike: String
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [DateTime!]
+
+  """
+  When true, every comparison operator in this object matches case-insensitively — `eq`, `ne`, the ordering operators, `inArray`/`notInArray` and the pattern operators all compare `lower(column)` against `lower(operand)`. Applies only to the operators beside it; a nested `AND`/`OR`/`NOT` branch sets its own.
+  """
+  insensitive: Boolean
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+  like: String
+
+  """Less than"""
+  lt: DateTime
+
+  """Less than or equal to"""
+  lte: DateTime
+
+  """Not equal to"""
+  ne: DateTime
+  notIlike: String
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [DateTime!]
+  notLike: String
+
+  """
+  Matches values starting with the given string. `%`, `_` and `\` are matched literally.
+  """
+  startsWith: String
+}
+
+type Habit {
+  activityType(where: ActivityTypeFilters): ActivityType
+  activityTypeId: UUID!
+  completions(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [HabitCompletionDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: HabitCompletionOrderBy
+    where: HabitCompletionFilters
+  ): [HabitCompletion!]!
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  description: String
+  estimatedLength: Int!
+  frequencyCount: Int!
+  frequencyUnit: String!
+  id: UUID!
+  minTimeBetweenInstances: Int
+  pomodoroEnabled: Boolean!
+  pomodoroLongBreakLength: Int
+  pomodoroMaxPerDay: Int
+  pomodoroShortBreakLength: Int
+  pomodoroUnitLength: Int
+  pomodoroUnitsBeforeLongBreak: Int
+  priority: Int!
+  title: String!
+  updatedAt: DateTime!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+type HabitCompletion {
+  completedAt: DateTime
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  habit(where: HabitFilters): Habit
+  habitId: UUID!
+  id: UUID!
+  scheduledAt: DateTime
+  skipped: Boolean!
+}
+
+"""Columns of HabitCompletion that a query can be made distinct on"""
+enum HabitCompletionDistinctColumn {
+  completedAt
+  createdAt
+  habitId
+  id
+  scheduledAt
+  skipped
+}
+
+input HabitCompletionFilters {
+  """Every branch matches"""
+  AND: [HabitCompletionFilters!]
+
+  """Negates the nested filters"""
+  NOT: HabitCompletionFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [HabitCompletionFilters!]
+  completedAt: DateTimeFilter
+  createdAt: DateTimeFilter
+
+  """Matches rows whose habit matches these filters"""
+  habit: HabitFilters
+  habitId: IdFilter
+  id: IdFilter
+  scheduledAt: DateTimeFilter
+  skipped: BooleanFilter
+}
+
+input HabitCompletionListRelationFilter {
+  """Every related row matches"""
+  every: HabitCompletionFilters
+
+  """No related row matches"""
+  none: HabitCompletionFilters
+
+  """At least one related row matches"""
+  some: HabitCompletionFilters
+}
+
+input HabitCompletionOrderBy {
+  completedAt: InnerOrder
+  createdAt: InnerOrder
+
+  """Order by columns of the related habit row"""
+  habit: HabitOrderBy
+  habitId: InnerOrder
+  id: InnerOrder
+  scheduledAt: InnerOrder
+  skipped: InnerOrder
+}
+
+type HabitDetail {
+  activityType: ActivityType
+  allTimeRate: Float!
+  description: String
+  estimatedLength: Int!
+  frequencyCount: Int!
+  frequencyUnit: String!
+  habitId: ID!
+  periods: [HabitPeriod!]!
+  priority: Int!
+  title: String!
+  totalCompletions: Int!
+  totalSkipped: Int!
+}
+
+"""Columns of Habit that a query can be made distinct on"""
+enum HabitDistinctColumn {
+  activityTypeId
+  createdAt
+  description
+  estimatedLength
+  frequencyCount
+  frequencyUnit
+  id
+  minTimeBetweenInstances
+  pomodoroEnabled
+  pomodoroLongBreakLength
+  pomodoroMaxPerDay
+  pomodoroShortBreakLength
+  pomodoroUnitLength
+  pomodoroUnitsBeforeLongBreak
+  priority
+  title
+  updatedAt
+  userId
+}
+
+input HabitFilters {
+  """Every branch matches"""
+  AND: [HabitFilters!]
+
+  """Negates the nested filters"""
+  NOT: HabitFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [HabitFilters!]
+
+  """Matches rows whose activityType matches these filters"""
+  activityType: ActivityTypeFilters
+  activityTypeId: IdFilter
+  completions: HabitCompletionListRelationFilter
+  createdAt: DateTimeFilter
+  description: StringFilter
+  estimatedLength: IntFilter
+  frequencyCount: IntFilter
+  frequencyUnit: StringFilter
+  id: IdFilter
+  minTimeBetweenInstances: IntFilter
+  pomodoroEnabled: BooleanFilter
+  pomodoroLongBreakLength: IntFilter
+  pomodoroMaxPerDay: IntFilter
+  pomodoroShortBreakLength: IntFilter
+  pomodoroUnitLength: IntFilter
+  pomodoroUnitsBeforeLongBreak: IntFilter
+  priority: IntFilter
+  title: StringFilter
+  updatedAt: DateTimeFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+input HabitListRelationFilter {
+  """Every related row matches"""
+  every: HabitFilters
+
+  """No related row matches"""
+  none: HabitFilters
+
+  """At least one related row matches"""
+  some: HabitFilters
+}
+
+input HabitOrderBy {
+  """Order by columns of the related activityType row"""
+  activityType: ActivityTypeOrderBy
+  activityTypeId: InnerOrder
+  createdAt: InnerOrder
+  description: InnerOrder
+  estimatedLength: InnerOrder
+  frequencyCount: InnerOrder
+  frequencyUnit: InnerOrder
+  id: InnerOrder
+  minTimeBetweenInstances: InnerOrder
+  pomodoroEnabled: InnerOrder
+  pomodoroLongBreakLength: InnerOrder
+  pomodoroMaxPerDay: InnerOrder
+  pomodoroShortBreakLength: InnerOrder
+  pomodoroUnitLength: InnerOrder
+  pomodoroUnitsBeforeLongBreak: InnerOrder
+  priority: InnerOrder
+  title: InnerOrder
+  updatedAt: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type HabitPeriod {
+  completions: Int!
+
+  """Instances still owed once skips are taken off the target."""
+  effectiveTarget: Int!
+  label: String!
+  periodEnd: String!
+  periodStart: String!
+
+  """completions / effectiveTarget — 1 when nothing was owed."""
+  rate: Float!
+
+  """Instances deliberately skipped in this period. Not failures."""
+  skipped: Int!
+  target: Int!
+}
+
+type HabitStatSummary {
+  activityType: ActivityType
+  completionRate: Float!
+  completions: Int!
+  frequencyCount: Int!
+  frequencyUnit: String!
+  habitId: ID!
+  target: Float!
+  title: String!
+}
+
+type HabitStats {
+  completionRate: Float!
+  habitId: String!
+  title: String!
+  totalCompletions: Int!
+  totalSkipped: Int!
+}
+
+input IdFilter {
+  """Every branch matches"""
+  AND: [IdFilter!]
+
+  """Negates the nested operators"""
+  NOT: IdFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [IdFilter!]
+
+  """Equal to"""
+  eq: UUID
+
+  """Greater than"""
+  gt: UUID
+
+  """Greater than or equal to"""
+  gte: UUID
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [UUID!]
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+
+  """Less than"""
+  lt: UUID
+
+  """Less than or equal to"""
+  lte: UUID
+
+  """Not equal to"""
+  ne: UUID
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [UUID!]
+}
+
+input ImportTodoInput {
+  completedAt: String
+  description: String
+  dueAt: String
+  title: String!
+}
+
+input ImportTodoListInput {
+  activityTypeId: ID!
+  defaultEstimatedLength: Int
+  defaultPriority: Int
+  description: String
+  name: String!
+  todos: [ImportTodoInput!]!
+}
+
+input ImportTodosArgs {
+  lists: [ImportTodoListInput!]!
+}
+
+type ImportTodosResult {
+  listsCreated: Int!
+  todosCreated: Int!
+}
+
+input InnerOrder {
+  direction: OrderDirection!
+
+  """
+  Sort by this column's position in the `inArray` list the same request's `where` gives it, rather than by the column's own value — `direction: asc` keeps the list's order, `desc` reverses it. Requires an `inArray` filter on the same column at the top level of `where`, and cannot be combined with `after` or `distinct`.
+  """
+  matchFilterOrder: Boolean
+
+  """
+  Where NULL values sort. Defaults to the database's own rule (PostgreSQL: last on asc, first on desc; MySQL/SQLite: first on asc, last on desc)
+  """
+  nulls: OrderNulls
+
+  """Priority of current field"""
+  priority: Int!
+}
+
+input IntArrayFilter {
+  """Every branch matches"""
+  AND: [IntArrayFilter!]
+
+  """Negates the nested operators"""
+  NOT: IntArrayFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [IntArrayFilter!]
+
+  """The whole array equals this array"""
+  eq: [Int!]
+
+  """Array contains this element"""
+  has: Int
+
+  """Array contains every one of these elements (containment, `@>`)"""
+  hasEvery: [Int!]
+
+  """Array contains at least one of these elements (overlap, `&&`)"""
+  hasSome: [Int!]
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [[Int!]!]
+
+  """When true, matches arrays with no elements"""
+  isEmpty: Boolean
+  isNotNull: Boolean
+  isNull: Boolean
+
+  """The whole array differs from this array"""
+  ne: [Int!]
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [[Int!]!]
+}
+
+input IntFilter {
+  """Every branch matches"""
+  AND: [IntFilter!]
+
+  """Negates the nested operators"""
+  NOT: IntFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [IntFilter!]
+
+  """Equal to"""
+  eq: Int
+
+  """Greater than"""
+  gt: Int
+
+  """Greater than or equal to"""
+  gte: Int
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [Int!]
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+
+  """Less than"""
+  lt: Int
+
+  """Less than or equal to"""
+  lte: Int
+
+  """Not equal to"""
+  ne: Int
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [Int!]
+}
+
+type ManualEvent {
+  color: String
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  description: String
+  endAt: DateTime!
+  id: UUID!
+  startAt: DateTime!
+  title: String!
+  updatedAt: DateTime!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+"""Columns of ManualEvent that a query can be made distinct on"""
+enum ManualEventDistinctColumn {
+  color
+  createdAt
+  description
+  endAt
+  id
+  startAt
+  title
+  updatedAt
+  userId
+}
+
+input ManualEventFilters {
+  """Every branch matches"""
+  AND: [ManualEventFilters!]
+
+  """Negates the nested filters"""
+  NOT: ManualEventFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [ManualEventFilters!]
+  color: StringFilter
+  createdAt: DateTimeFilter
+  description: StringFilter
+  endAt: DateTimeFilter
+  id: IdFilter
+  startAt: DateTimeFilter
+  title: StringFilter
+  updatedAt: DateTimeFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+input ManualEventListRelationFilter {
+  """Every related row matches"""
+  every: ManualEventFilters
+
+  """No related row matches"""
+  none: ManualEventFilters
+
+  """At least one related row matches"""
+  some: ManualEventFilters
+}
+
+input ManualEventOrderBy {
+  color: InnerOrder
+  createdAt: InnerOrder
+  description: InnerOrder
+  endAt: InnerOrder
+  id: InnerOrder
+  startAt: InnerOrder
+  title: InnerOrder
+  updatedAt: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type Mutation {
+  myArchiveProject(id: ID!): Project!
+  myCompleteHabit(input: CompleteHabitArgs!): HabitCompletion!
+  myCompleteTodo(completedAt: String, id: ID!): Todo!
+  myCompleteTodos(completedAt: String, ids: [ID!]!): [Todo!]!
+  myCreateActivityType(input: CreateActivityTypeArgs!): ActivityType!
+  myCreateApiKey(input: MyCreateApiKeyInput!): CreateApiKeyResult!
+  myCreateHabit(input: CreateHabitArgs!): Habit!
+  myCreateManualEvent(input: CreateManualEventArgs!): ManualEvent!
+  myCreateProject(input: CreateProjectArgs!): Project!
+  myCreateProjectNote(input: CreateProjectNoteArgs!): ProjectNote!
+  myCreateTimeBlock(input: CreateTimeBlockArgs!): TimeBlock!
+  myCreateTodo(input: CreateTodoArgs!): Todo!
+  myCreateTodoList(input: CreateTodoListArgs!): TodoList!
+  myDeleteActivityType(id: ID!): Boolean!
+  myDeleteHabit(id: ID!): Boolean!
+  myDeleteManualEvent(id: ID!): Boolean!
+  myDeleteProjectNote(id: ID!): Boolean!
+  myDeleteTimeBlock(id: ID!): Boolean!
+  myDeleteTodo(id: ID!): Boolean!
+  myDeleteTodoList(id: ID!): Boolean!
+  myDeleteTodos(completed: Boolean, listId: ID!): [Todo!]!
+  myDeleteTodosById(ids: [ID!]!): [Todo!]!
+  myImportTodos(input: ImportTodosArgs!): ImportTodosResult!
+  myRegisterPushSubscription(input: RegisterPushSubscriptionArgs!): Boolean!
+  myReorderProjectNotes(input: ReorderProjectNotesArgs!): [ProjectNote!]!
+  myReschedule(weekStart: String): Boolean!
+  myRevokeApiKey(id: ID!): Boolean!
+  mySkipHabit(input: SkipHabitArgs!): HabitCompletion!
+  myUncompleteHabit(completionId: ID!): Boolean!
+  myUnregisterPushSubscription(endpoint: String!): Boolean!
+  myUnscheduleTodo(id: ID!): Todo!
+  myUnskipHabit(completionId: ID!): Boolean!
+  myUpdateActivityType(input: UpdateActivityTypeArgs!): ActivityType!
+  myUpdateHabit(input: UpdateHabitArgs!): Habit!
+  myUpdateManualEvent(input: UpdateManualEventArgs!): ManualEvent!
+  myUpdateNotificationPreferences(input: UpdateNotificationPreferencesArgs!): NotificationPreference!
+  myUpdateProfile(timezone: String!): Boolean!
+  myUpdateProject(input: UpdateProjectArgs!): Project!
+  myUpdateProjectNote(input: UpdateProjectNoteArgs!): ProjectNote!
+  myUpdateTimeBlock(input: UpdateTimeBlockArgs!): TimeBlock!
+  myUpdateTodo(input: UpdateTodoArgs!): Todo!
+  myUpdateTodoList(input: UpdateTodoListArgs!): TodoList!
+  requestMagicLink(email: String!): RequestMagicLinkResult!
+  verifyMagicLink(token: String!): VerifyMagicLinkResult!
+}
+
+input MyCreateApiKeyInput {
+  expiresAt: String
+  name: String!
+  scopes: [String!]!
+}
+
+type NotificationPreference {
+  activityTypeIds: [UUID!]!
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  enabled: Boolean!
+  habitDigest: Boolean!
+  id: UUID!
+  leadTimeMinutes: Int!
+  quietHoursEnd: String
+  quietHoursStart: String
+  updatedAt: DateTime!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+input NotificationPreferenceFilters {
+  """Every branch matches"""
+  AND: [NotificationPreferenceFilters!]
+
+  """Negates the nested filters"""
+  NOT: NotificationPreferenceFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [NotificationPreferenceFilters!]
+  activityTypeIds: UUIDArrayFilter
+  createdAt: DateTimeFilter
+  enabled: BooleanFilter
+  habitDigest: BooleanFilter
+  id: IdFilter
+  leadTimeMinutes: IntFilter
+  quietHoursEnd: StringFilter
+  quietHoursStart: StringFilter
+  updatedAt: DateTimeFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+input NotificationPreferenceOrderBy {
+  activityTypeIds: InnerOrder
+  createdAt: InnerOrder
+  enabled: InnerOrder
+  habitDigest: InnerOrder
+  id: InnerOrder
+  leadTimeMinutes: InnerOrder
+  quietHoursEnd: InnerOrder
+  quietHoursStart: InnerOrder
+  updatedAt: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+"""Order by direction"""
+enum OrderDirection {
+  """Ascending order"""
+  asc
+
+  """Descending order"""
+  desc
+}
+
+"""Where NULL values sort relative to non-NULL values"""
+enum OrderNulls {
+  """NULL values sort before all non-NULL values"""
+  first
+
+  """NULL values sort after all non-NULL values"""
+  last
+}
+
+type Project {
+  activityType(where: ActivityTypeFilters): ActivityType
+  activityTypeId: UUID!
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  id: UUID!
+  list: TodoList
+  name: String!
+  notes(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [ProjectNoteDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ProjectNoteOrderBy
+    where: ProjectNoteFilters
+  ): [ProjectNote!]!
+  status: String!
+  updatedAt: DateTime!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+"""Columns of Project that a query can be made distinct on"""
+enum ProjectDistinctColumn {
+  activityTypeId
+  createdAt
+  id
+  name
+  status
+  updatedAt
+  userId
+}
+
+input ProjectFilters {
+  """Every branch matches"""
+  AND: [ProjectFilters!]
+
+  """Negates the nested filters"""
+  NOT: ProjectFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [ProjectFilters!]
+
+  """Matches rows whose activityType matches these filters"""
+  activityType: ActivityTypeFilters
+  activityTypeId: IdFilter
+  createdAt: DateTimeFilter
+  id: IdFilter
+  name: StringFilter
+  notes: ProjectNoteListRelationFilter
+  status: StringFilter
+  updatedAt: DateTimeFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+input ProjectListRelationFilter {
+  """Every related row matches"""
+  every: ProjectFilters
+
+  """No related row matches"""
+  none: ProjectFilters
+
+  """At least one related row matches"""
+  some: ProjectFilters
+}
+
+type ProjectNote {
+  content: String!
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  id: UUID!
+  position: Int!
+  project(where: ProjectFilters): Project
+  projectId: UUID!
+  title: String!
+  updatedAt: DateTime!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+"""Columns of ProjectNote that a query can be made distinct on"""
+enum ProjectNoteDistinctColumn {
+  content
+  createdAt
+  id
+  position
+  projectId
+  title
+  updatedAt
+  userId
+}
+
+input ProjectNoteFilters {
+  """Every branch matches"""
+  AND: [ProjectNoteFilters!]
+
+  """Negates the nested filters"""
+  NOT: ProjectNoteFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [ProjectNoteFilters!]
+  content: StringFilter
+  createdAt: DateTimeFilter
+  id: IdFilter
+  position: IntFilter
+
+  """Matches rows whose project matches these filters"""
+  project: ProjectFilters
+  projectId: IdFilter
+  title: StringFilter
+  updatedAt: DateTimeFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+input ProjectNoteListRelationFilter {
+  """Every related row matches"""
+  every: ProjectNoteFilters
+
+  """No related row matches"""
+  none: ProjectNoteFilters
+
+  """At least one related row matches"""
+  some: ProjectNoteFilters
+}
+
+input ProjectNoteOrderBy {
+  content: InnerOrder
+  createdAt: InnerOrder
+  id: InnerOrder
+  position: InnerOrder
+
+  """Order by columns of the related project row"""
+  project: ProjectOrderBy
+  projectId: InnerOrder
+  title: InnerOrder
+  updatedAt: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+input ProjectOrderBy {
+  """Order by columns of the related activityType row"""
+  activityType: ActivityTypeOrderBy
+  activityTypeId: InnerOrder
+  createdAt: InnerOrder
+  id: InnerOrder
+  name: InnerOrder
+  status: InnerOrder
+  updatedAt: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type PushSubscription {
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  endpoint: String!
+  expiredAt: DateTime
+  id: UUID!
+  user(where: UserFilters): User
+  userAgent: String
+  userId: UUID!
+}
+
+"""Columns of PushSubscription that a query can be made distinct on"""
+enum PushSubscriptionDistinctColumn {
+  createdAt
+  endpoint
+  expiredAt
+  id
+  userAgent
+  userId
+}
+
+input PushSubscriptionFilters {
+  """Every branch matches"""
+  AND: [PushSubscriptionFilters!]
+
+  """Negates the nested filters"""
+  NOT: PushSubscriptionFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [PushSubscriptionFilters!]
+  createdAt: DateTimeFilter
+  endpoint: StringFilter
+  expiredAt: DateTimeFilter
+  id: IdFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userAgent: StringFilter
+  userId: IdFilter
+}
+
+input PushSubscriptionListRelationFilter {
+  """Every related row matches"""
+  every: PushSubscriptionFilters
+
+  """No related row matches"""
+  none: PushSubscriptionFilters
+
+  """At least one related row matches"""
+  some: PushSubscriptionFilters
+}
+
+input PushSubscriptionOrderBy {
+  createdAt: InnerOrder
+  endpoint: InnerOrder
+  expiredAt: InnerOrder
+  id: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userAgent: InnerOrder
+  userId: InnerOrder
+}
+
+type Query {
+  myActivityTypeStats(endDate: String, startDate: String): [ActivityTypeStats!]!
+  myActivityTypes(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [ActivityTypeDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ActivityTypeOrderBy
+    where: ActivityTypeFilters
+  ): [ActivityType!]!
+  myApiKeys(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [ApiKeyDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ApiKeyOrderBy
+    where: ApiKeyFilters
+  ): [ApiKey!]!
+  myHabitDetail(habitId: ID!, periods: Int): HabitDetail!
+  myHabitStats(endDate: String, habitId: ID, startDate: String): [HabitStats!]!
+  myHabits(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [HabitDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: HabitOrderBy
+    where: HabitFilters
+  ): [Habit!]!
+  myManualEvents(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [ManualEventDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ManualEventOrderBy
+    where: ManualEventFilters
+  ): [ManualEvent!]!
+  myNotificationPreferences: NotificationPreference!
+  myProfile(offset: Int, orderBy: UserOrderBy, where: UserFilters): User
+  myProject(offset: Int, orderBy: ProjectOrderBy, where: ProjectFilters): Project
+  myProjects(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [ProjectDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ProjectOrderBy
+    where: ProjectFilters
+  ): [Project!]!
+
+  """
+  VAPID public key for `PushManager.subscribe`. Null when the server has no
+  keys configured — the client hides the notification settings entirely
+  rather than offering a button that cannot work.
+  """
+  myPushPublicKey: String
+  mySchedule(timezone: String, weekStart: String): [ScheduledItem!]!
+  myStats(endDate: String, startDate: String): StatsOverview!
+  myTimeBlocks(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [TimeBlockDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TimeBlockOrderBy
+    where: TimeBlockFilters
+  ): [TimeBlock!]!
+  myTodoLists(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [TodoListDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TodoListOrderBy
+    where: TodoListFilters
+  ): [TodoList!]!
+  myTodos(
+    """
+    Keyset pagination: only return rows strictly after this cursor (a row's `cursor` field from a previous page, under the same orderBy).
+    """
+    after: String
+    distinct: [TodoDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TodoOrderBy
+    where: TodoFilters
+  ): [Todo!]!
+}
+
+input RegisterPushSubscriptionArgs {
+  auth: String!
+  endpoint: String!
+  p256dh: String!
+  userAgent: String
+}
+
+input ReorderProjectNotesArgs {
+  noteIds: [ID!]!
+  projectId: ID!
+}
+
+"""
+The outcome of a sign-in request. With AUTH_MAGIC_LINK=false there is no link
+to follow, so a live session comes back immediately in token/userId. With
+magic links on, magicLink is filled in only where exposing it is enabled.
+"""
+type RequestMagicLinkResult {
+  magicLink: String
+  ok: Boolean!
+  token: String
+  userId: ID
+}
+
+type ScheduledItem {
+  activityType: ActivityType
+  completedAt: String
+  dueAt: String
+  estimatedLength: Int!
+  id: ID!
+  isOverdue: Boolean!
+  isScheduled: Boolean!
+  kind: ScheduledItemKind!
+  manuallyScheduled: Boolean!
+  priority: Int!
+  scheduledEnd: String
+  scheduledStart: String
+  title: String!
+  unschedulableReason: String
+}
+
+enum ScheduledItemKind {
+  habit
+  pomodoro
+  todo
+}
+
+input SkipHabitArgs {
+  habitId: ID!
+  scheduledAt: String
+}
+
+type StatsOverview {
+  habitScore: Float
+  habits: [HabitStatSummary!]!
+  todoScore: Float
+  todos: TodoStatSummary!
+  weightedScore: Float
+}
+
+input StringArrayFilter {
+  """Every branch matches"""
+  AND: [StringArrayFilter!]
+
+  """Negates the nested operators"""
+  NOT: StringArrayFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [StringArrayFilter!]
+
+  """The whole array equals this array"""
+  eq: [String!]
+
+  """Array contains this element"""
+  has: String
+
+  """Array contains every one of these elements (containment, `@>`)"""
+  hasEvery: [String!]
+
+  """Array contains at least one of these elements (overlap, `&&`)"""
+  hasSome: [String!]
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [[String!]!]
+
+  """When true, matches arrays with no elements"""
+  isEmpty: Boolean
+  isNotNull: Boolean
+  isNull: Boolean
+
+  """The whole array differs from this array"""
+  ne: [String!]
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [[String!]!]
+}
+
+input StringFilter {
+  """Every branch matches"""
+  AND: [StringFilter!]
+
+  """Negates the nested operators"""
+  NOT: StringFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [StringFilter!]
+
+  """
+  Matches values containing the given string. `%`, `_` and `\` are matched literally.
+  """
+  contains: String
+
+  """
+  Matches values ending with the given string. `%`, `_` and `\` are matched literally.
+  """
+  endsWith: String
+
+  """Equal to"""
+  eq: String
+
+  """Greater than"""
+  gt: String
+
+  """Greater than or equal to"""
+  gte: String
+
+  """Case-insensitive `contains`."""
+  iContains: String
+
+  """Case-insensitive `endsWith`."""
+  iEndsWith: String
+
+  """Case-insensitive `startsWith`."""
+  iStartsWith: String
+  ilike: String
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [String!]
+
+  """
+  When true, every comparison operator in this object matches case-insensitively — `eq`, `ne`, the ordering operators, `inArray`/`notInArray` and the pattern operators all compare `lower(column)` against `lower(operand)`. Applies only to the operators beside it; a nested `AND`/`OR`/`NOT` branch sets its own.
+  """
+  insensitive: Boolean
+
+  """When true, matches rows where the column is not NULL"""
+  isNotNull: Boolean
+
+  """When true, matches rows where the column is NULL"""
+  isNull: Boolean
+  like: String
+
+  """Less than"""
+  lt: String
+
+  """Less than or equal to"""
+  lte: String
+
+  """Not equal to"""
+  ne: String
+  notIlike: String
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [String!]
+  notLike: String
+
+  """
+  Matches values starting with the given string. `%`, `_` and `\` are matched literally.
+  """
+  startsWith: String
+}
+
+type Subscription {
+  myDataChanged: DataChangedEvent!
+  myTodoListsUpdated: TodoListEvent!
+  myTodosUpdated: TodoEvent!
+}
+
+type TimeBlock {
+  activityType(where: ActivityTypeFilters): ActivityType
+  activityTypeId: UUID!
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  daysOfWeek: [Int!]!
+  endTime: String!
+  id: UUID!
+  priority: Int!
+  startTime: String!
+  updatedAt: DateTime!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+"""Columns of TimeBlock that a query can be made distinct on"""
+enum TimeBlockDistinctColumn {
+  activityTypeId
+  createdAt
+  daysOfWeek
+  endTime
+  id
+  priority
+  startTime
+  updatedAt
+  userId
+}
+
+input TimeBlockFilters {
+  """Every branch matches"""
+  AND: [TimeBlockFilters!]
+
+  """Negates the nested filters"""
+  NOT: TimeBlockFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [TimeBlockFilters!]
+
+  """Matches rows whose activityType matches these filters"""
+  activityType: ActivityTypeFilters
+  activityTypeId: IdFilter
+  createdAt: DateTimeFilter
+  daysOfWeek: IntArrayFilter
+  endTime: StringFilter
+  id: IdFilter
+  priority: IntFilter
+  startTime: StringFilter
+  updatedAt: DateTimeFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+input TimeBlockListRelationFilter {
+  """Every related row matches"""
+  every: TimeBlockFilters
+
+  """No related row matches"""
+  none: TimeBlockFilters
+
+  """At least one related row matches"""
+  some: TimeBlockFilters
+}
+
+input TimeBlockOrderBy {
+  """Order by columns of the related activityType row"""
+  activityType: ActivityTypeOrderBy
+  activityTypeId: InnerOrder
+  createdAt: InnerOrder
+  daysOfWeek: InnerOrder
+  endTime: InnerOrder
+  id: InnerOrder
+  priority: InnerOrder
+  startTime: InnerOrder
+  updatedAt: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type Todo {
+  activityType: ActivityType
+  completedAt: DateTime
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  description: String
+  dueAt: DateTime
+  estimatedLength: Int!
+  id: UUID!
+  list(where: TodoListFilters): TodoList
+  listId: UUID!
+  manuallyScheduled: Boolean!
+  priority: Int!
+  scheduledAt: DateTime
+  title: String!
+  updatedAt: DateTime!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+"""Columns of Todo that a query can be made distinct on"""
+enum TodoDistinctColumn {
+  completedAt
+  createdAt
+  description
+  dueAt
+  estimatedLength
+  id
+  listId
+  manuallyScheduled
+  priority
+  scheduledAt
+  title
+  updatedAt
+  userId
+}
+
+type TodoEvent {
+  deletedId: ID
+  todo: Todo
+  type: TodoEventType!
+}
+
+enum TodoEventType {
+  created
+  deleted
+  updated
+}
+
+input TodoFilters {
+  """Every branch matches"""
+  AND: [TodoFilters!]
+
+  """Negates the nested filters"""
+  NOT: TodoFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [TodoFilters!]
+  completedAt: DateTimeFilter
+  createdAt: DateTimeFilter
+  description: StringFilter
+  dueAt: DateTimeFilter
+  estimatedLength: IntFilter
+  id: IdFilter
+
+  """Matches rows whose list matches these filters"""
+  list: TodoListFilters
+  listId: IdFilter
+  manuallyScheduled: BooleanFilter
+  priority: IntFilter
+  scheduledAt: DateTimeFilter
+  title: StringFilter
+  updatedAt: DateTimeFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+type TodoList {
+  activityType(where: ActivityTypeFilters): ActivityType
+  activityTypeId: UUID!
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  defaultEstimatedLength: Int!
+  defaultPriority: Int!
+  description: String
+  id: UUID!
+  name: String!
+  project(where: ProjectFilters): Project
+  projectId: UUID
+  todos(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [TodoDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TodoOrderBy
+    where: TodoFilters
+  ): [Todo!]!
+  updatedAt: DateTime!
+  user(where: UserFilters): User
+  userId: UUID!
+}
+
+"""Columns of TodoList that a query can be made distinct on"""
+enum TodoListDistinctColumn {
+  activityTypeId
+  createdAt
+  defaultEstimatedLength
+  defaultPriority
+  description
+  id
+  name
+  projectId
+  updatedAt
+  userId
+}
+
+type TodoListEvent {
+  deletedId: ID
+  todoList: TodoList
+  type: TodoEventType!
+}
+
+input TodoListFilters {
+  """Every branch matches"""
+  AND: [TodoListFilters!]
+
+  """Negates the nested filters"""
+  NOT: TodoListFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [TodoListFilters!]
+
+  """Matches rows whose activityType matches these filters"""
+  activityType: ActivityTypeFilters
+  activityTypeId: IdFilter
+  createdAt: DateTimeFilter
+  defaultEstimatedLength: IntFilter
+  defaultPriority: IntFilter
+  description: StringFilter
+  id: IdFilter
+  name: StringFilter
+
+  """Matches rows whose project matches these filters"""
+  project: ProjectFilters
+  projectId: IdFilter
+  todos: TodoListRelationFilter
+  updatedAt: DateTimeFilter
+
+  """Matches rows whose user matches these filters"""
+  user: UserFilters
+  userId: IdFilter
+}
+
+input TodoListListRelationFilter {
+  """Every related row matches"""
+  every: TodoListFilters
+
+  """No related row matches"""
+  none: TodoListFilters
+
+  """At least one related row matches"""
+  some: TodoListFilters
+}
+
+input TodoListOrderBy {
+  """Order by columns of the related activityType row"""
+  activityType: ActivityTypeOrderBy
+  activityTypeId: InnerOrder
+  createdAt: InnerOrder
+  defaultEstimatedLength: InnerOrder
+  defaultPriority: InnerOrder
+  description: InnerOrder
+  id: InnerOrder
+  name: InnerOrder
+
+  """Order by columns of the related project row"""
+  project: ProjectOrderBy
+  projectId: InnerOrder
+  updatedAt: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+input TodoListRelationFilter {
+  """Every related row matches"""
+  every: TodoFilters
+
+  """No related row matches"""
+  none: TodoFilters
+
+  """At least one related row matches"""
+  some: TodoFilters
+}
+
+input TodoOrderBy {
+  completedAt: InnerOrder
+  createdAt: InnerOrder
+  description: InnerOrder
+  dueAt: InnerOrder
+  estimatedLength: InnerOrder
+  id: InnerOrder
+
+  """Order by columns of the related list row"""
+  list: TodoListOrderBy
+  listId: InnerOrder
+  manuallyScheduled: InnerOrder
+  priority: InnerOrder
+  scheduledAt: InnerOrder
+  title: InnerOrder
+  updatedAt: InnerOrder
+
+  """Order by columns of the related user row"""
+  user: UserOrderBy
+  userId: InnerOrder
+}
+
+type TodoStatSummary {
+  completed: Int!
+  completionRate: Float!
+  overdue: Int!
+  total: Int!
+}
+
+"""
+A field whose value is a generic Universally Unique Identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier.
+"""
+scalar UUID
+
+input UUIDArrayFilter {
+  """Every branch matches"""
+  AND: [UUIDArrayFilter!]
+
+  """Negates the nested operators"""
+  NOT: UUIDArrayFilter
+
+  """At least one branch matches; ANDed with any sibling operators"""
+  OR: [UUIDArrayFilter!]
+
+  """The whole array equals this array"""
+  eq: [UUID!]
+
+  """Array contains this element"""
+  has: UUID
+
+  """Array contains every one of these elements (containment, `@>`)"""
+  hasEvery: [UUID!]
+
+  """Array contains at least one of these elements (overlap, `&&`)"""
+  hasSome: [UUID!]
+
+  """Matches any one of these values (SQL `IN`)"""
+  inArray: [[UUID!]!]
+
+  """When true, matches arrays with no elements"""
+  isEmpty: Boolean
+  isNotNull: Boolean
+  isNull: Boolean
+
+  """The whole array differs from this array"""
+  ne: [UUID!]
+
+  """Matches none of these values (SQL `NOT IN`)"""
+  notInArray: [[UUID!]!]
+}
+
+input UpdateActivityTypeArgs {
+  color: String
+  id: ID!
+  name: String
+}
+
+input UpdateHabitArgs {
+  activityTypeId: ID
+  description: String
+  estimatedLength: Int
+  frequencyCount: Int
+  frequencyUnit: String
+  id: ID!
+  minTimeBetweenInstances: Int
+  pomodoroEnabled: Boolean
+  pomodoroLongBreakLength: Int
+  pomodoroMaxPerDay: Int
+  pomodoroShortBreakLength: Int
+  pomodoroUnitLength: Int
+  pomodoroUnitsBeforeLongBreak: Int
+  priority: Int
+  title: String
+}
+
+input UpdateManualEventArgs {
+  color: String
+  description: String
+  endAt: String
+  id: ID!
+  startAt: String
+  title: String
+}
+
+input UpdateNotificationPreferencesArgs {
+  """Activity types to notify about. Empty means every type."""
+  activityTypeIds: [ID!]
+  enabled: Boolean
+  habitDigest: Boolean
+
+  """Minutes before the slot starts. 1–120."""
+  leadTimeMinutes: Int
+  quietHoursEnd: String
+
+  """
+  Local HH:MM. Both null disables quiet hours; the window may wrap midnight.
+  """
+  quietHoursStart: String
+}
+
+input UpdateProjectArgs {
+  id: ID!
+  name: String
+  status: String
+}
+
+input UpdateProjectNoteArgs {
+  content: String
+  id: ID!
+  title: String
+}
+
+input UpdateTimeBlockArgs {
+  activityTypeId: ID
+  daysOfWeek: [Int!]
+  endTime: String
+  id: ID!
+  priority: Int
+  startTime: String
+}
+
+input UpdateTodoArgs {
+  completedAt: String
+  description: String
+  dueAt: String
+  estimatedLength: Int
+  id: ID!
+  listId: ID
+  manuallyScheduled: Boolean
+  priority: Int
+  scheduledAt: String
+  title: String
+}
+
+input UpdateTodoListArgs {
+  activityTypeId: ID
+  defaultEstimatedLength: Int
+  defaultPriority: Int
+  description: String
+  id: ID!
+  name: String
+}
+
+type User {
+  activityTypes(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [ActivityTypeDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ActivityTypeOrderBy
+    where: ActivityTypeFilters
+  ): [ActivityType!]!
+  apiKeys(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [ApiKeyDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ApiKeyOrderBy
+    where: ApiKeyFilters
+  ): [ApiKey!]!
+  createdAt: DateTime!
+
+  """
+  Opaque cursor of this row's position in the query's ordering. Pass it as `after` to resume from here. Only set on rows returned by a list query.
+  """
+  cursor: String
+  email: String!
+  habits(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [HabitDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: HabitOrderBy
+    where: HabitFilters
+  ): [Habit!]!
+  id: UUID!
+  manualEvents(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [ManualEventDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ManualEventOrderBy
+    where: ManualEventFilters
+  ): [ManualEvent!]!
+  notificationPreferences(where: NotificationPreferenceFilters): NotificationPreference
+  projects(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [ProjectDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: ProjectOrderBy
+    where: ProjectFilters
+  ): [Project!]!
+  pushSubscriptions(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [PushSubscriptionDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: PushSubscriptionOrderBy
+    where: PushSubscriptionFilters
+  ): [PushSubscription!]!
+  timeBlocks(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [TimeBlockDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TimeBlockOrderBy
+    where: TimeBlockFilters
+  ): [TimeBlock!]!
+  timezone: String!
+  todoLists(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [TodoListDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TodoListOrderBy
+    where: TodoListFilters
+  ): [TodoList!]!
+  todos(
+    """
+    Keyset pagination: only return related rows strictly after this cursor (a row's `cursor` field from a previous page of this relation, under the same orderBy).
+    """
+    after: String
+    distinct: [TodoDistinctColumn!]
+    limit: Int
+    offset: Int
+    orderBy: TodoOrderBy
+    where: TodoFilters
+  ): [Todo!]!
+  updatedAt: DateTime!
+}
+
+input UserFilters {
+  """Every branch matches"""
+  AND: [UserFilters!]
+
+  """Negates the nested filters"""
+  NOT: UserFilters
+
+  """At least one branch matches; ANDed with any sibling fields"""
+  OR: [UserFilters!]
+  activityTypes: ActivityTypeListRelationFilter
+  apiKeys: ApiKeyListRelationFilter
+  createdAt: DateTimeFilter
+  email: StringFilter
+  habits: HabitListRelationFilter
+  id: IdFilter
+  manualEvents: ManualEventListRelationFilter
+
+  """Matches rows whose notificationPreferences matches these filters"""
+  notificationPreferences: NotificationPreferenceFilters
+  projects: ProjectListRelationFilter
+  pushSubscriptions: PushSubscriptionListRelationFilter
+  timeBlocks: TimeBlockListRelationFilter
+  timezone: StringFilter
+  todoLists: TodoListListRelationFilter
+  todos: TodoListRelationFilter
+  updatedAt: DateTimeFilter
+}
+
+input UserOrderBy {
+  createdAt: InnerOrder
+  email: InnerOrder
+  id: InnerOrder
+
+  """Order by columns of the related notificationPreferences row"""
+  notificationPreferences: NotificationPreferenceOrderBy
+  timezone: InnerOrder
+  updatedAt: InnerOrder
+}
+
+type VerifyMagicLinkResult {
+  token: String!
+  userId: ID!
+}

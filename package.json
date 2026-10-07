@@ -11,7 +11,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "schemas:snapshot": "npm run schemas:snapshot -w @cubicecho/dashboard-server --"
   },
   "license": "MIT",
   "devDependencies": {

@@ -13,13 +13,25 @@
     <div id="status-chips" class="chips"></div>
     <div class="header-actions">
       <button id="refresh" title="Refresh widgets">↻</button>
-      <button id="reload-plugins" title="Re-introspect plugins">⟲ plugins</button>
+      <button id="reload-plugins" title="Reload plugin schemas">⟲ plugins</button>
       <button id="settings-toggle" title="Tokens">⚙</button>
     </div>
   </header>
 
   <dialog id="settings">
     <form method="dialog">
+      <h2>Sign in</h2>
+      <p class="hint">
+        Signs in to every app that allows direct email sign-in
+        (<code>AUTH_MAGIC_LINK=false</code>, secure local networks only). Each app
+        issues its own token; they are stored below.
+      </p>
+      <div class="sign-in">
+        <input id="sign-in-email" type="email" placeholder="you@example.com" autocomplete="email" />
+        <button type="button" id="sign-in">Sign in</button>
+      </div>
+      <ul id="sign-in-results" class="rows"></ul>
+
       <h2>Plugin tokens</h2>
       <p class="hint">
         Paste a token per app (API key / <code>cet_</code> token / JWT). Stored in this

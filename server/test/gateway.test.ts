@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { graphql, printSchema } from 'graphql';
@@ -8,7 +11,7 @@ import {
   stitchLoaded,
 } from '../src/gateway.ts';
 import { loadPlugins, resolveAuthHeaders } from '../src/plugins.ts';
-import { startFakePlugin } from './fixtures/fake-plugin.ts';
+import { fakePluginSdl, startFakePlugin } from './fixtures/fake-plugin.ts';
 
 // Two fixture apps that collide the way the real ones do: both define a
 // `Note` type, a `me` root field, and a `requestMagicLink` mutation.
@@ -234,5 +237,74 @@ test('loadGateway: an unreachable plugin is reported and skipped, the rest stitc
     assert.doesNotMatch(printSchema(gateway.schema), /aaa_me/);
   } finally {
     await live.close();
+  }
+});
+
+test('an app refusing introspection is stitched from its snapshot, executed live', async () => {
+  const closed = await startFakePlugin(0, { introspection: false });
+  const schemaDir = await mkdtemp(path.join(tmpdir(), 'pd-schemas-'));
+  try {
+    const plugin = { name: 'fake', url: closed.url };
+
+    // No snapshot: reported down, and the error says why it had no fallback.
+    const bare = await loadGateway([plugin], { schemaDir });
+    assert.equal(bare.statuses[0].ok, false);
+    assert.match(bare.statuses[0].error ?? '', /no snapshot/);
+
+    await writeFile(path.join(schemaDir, 'fake.graphql'), fakePluginSdl);
+    const gateway = await loadGateway([plugin], { schemaDir });
+    assert.equal(gateway.statuses[0].ok, true);
+    assert.equal(gateway.statuses[0].schemaSource, 'snapshot');
+    assert.match(gateway.statuses[0].error ?? '', /introspection refused/);
+
+    const result = await graphql({
+      schema: gateway.schema,
+      source: '{ fake_me plugins { name schemaSource } }',
+    });
+    assert.equal(result.errors, undefined);
+    assert.deepEqual(JSON.parse(JSON.stringify(result.data)), {
+      fake_me: 'fake-user',
+      plugins: [{ name: 'fake', schemaSource: 'SNAPSHOT' }],
+    });
+  } finally {
+    await closed.close();
+    await rm(schemaDir, { recursive: true, force: true });
+  }
+});
+
+test('a snapshot does not make a down app look up', async () => {
+  const probe = await startFakePlugin();
+  await probe.close();
+  const schemaDir = await mkdtemp(path.join(tmpdir(), 'pd-schemas-'));
+  try {
+    await writeFile(path.join(schemaDir, 'fake.graphql'), fakePluginSdl);
+    const gateway = await loadGateway([{ name: 'fake', url: probe.url }], {
+      schemaDir,
+    });
+    assert.equal(gateway.statuses[0].ok, false);
+    assert.equal(gateway.statuses[0].schemaSource, undefined);
+  } finally {
+    await rm(schemaDir, { recursive: true, force: true });
+  }
+});
+
+test('introspection wins over a snapshot when the app allows it', async () => {
+  const open = await startFakePlugin();
+  const schemaDir = await mkdtemp(path.join(tmpdir(), 'pd-schemas-'));
+  try {
+    // A deliberately wrong snapshot proves it was never read.
+    await writeFile(
+      path.join(schemaDir, 'fake.graphql'),
+      'type Query { stale: String }',
+    );
+    const gateway = await loadGateway([{ name: 'fake', url: open.url }], {
+      schemaDir,
+    });
+    assert.equal(gateway.statuses[0].schemaSource, 'introspection');
+    assert.match(printSchema(gateway.schema), /fake_whoami/);
+    assert.doesNotMatch(printSchema(gateway.schema), /fake_stale/);
+  } finally {
+    await open.close();
+    await rm(schemaDir, { recursive: true, force: true });
   }
 });

@@ -56,7 +56,7 @@ typecheck and test on node 26 and will fail if any does not.
 | Choice | Why |
 |--------|-----|
 | **`@graphql-tools/stitch`** | Introspect + prefix + merge at runtime. Federation would need a `/subgraph` endpoint added to every app; stitching needs nothing from them. The tradeoff is no cross-app entity joins — see `.agents/federation.md` for the eventual swap |
-| **GraphQL Yoga** | Accepts a `schema: () => …` thunk, so `POST /reload` can hot-swap the stitched schema without a restart |
+| **GraphQL Yoga** | Accepts a `schema: () => …` thunk, so the `reloadPlugins` mutation can hot-swap the stitched schema without a restart |
 | **Express 4** | Only serving static files and mounting yoga. **It does not catch rejected promises from async handlers** — every async route must try/catch itself |
 | **Native TS (node type stripping)** | Node runs `.ts` directly; no build step, no watcher. Requires `.ts` extensions on every relative import, and `erasableSyntaxOnly` — no enums, no parameter properties, no namespaces |
 | **Biome** | Single tool for lint + format; enforces `useImportType`, `noUnusedImports`, single quotes, trailing commas |
@@ -67,8 +67,10 @@ typecheck and test on node 26 and will fail if any does not.
 
 ```
 server/src/plugins.ts   plugin registry + auth header resolution
-server/src/gateway.ts   introspect → prefix → stitch; the federation seam
-server/src/http.ts      express: /graphql (yoga), /health, /reload, static app/
+server/src/gateway.ts   introspect (or snapshot) → prefix → stitch; the federation seam
+server/src/http.ts      express: /graphql (yoga), /health, static app/
+server/scripts/         schemas:snapshot — refresh schemas/<name>.graphql
+schemas/                snapshots for apps that refuse introspection in production
 server/src/index.ts     read env, load the gateway, listen
 app/                    the dashboard page (no build step)
 server/test/            unit tests + the end-to-end HTTP smoke test
@@ -104,10 +106,10 @@ it stays on `Authorization` even for a custom-header plugin, because it is a
 bearer session token and the app that could verify it reads it there.
 
 **Degrade, never crash.** The dashboard's contract is that it works with
-whatever is up. A plugin that is down or refuses introspection is recorded in
-`statuses` and skipped; a stitch failure at boot serves the status-only schema
-instead of exiting; a failed `/reload` answers 503 and keeps the schema that was
-already working. When adding a failure path, decide what it degrades *to*.
+whatever is up. A plugin that is down, or refuses introspection and has no
+snapshot, is recorded in `statuses` and skipped; a stitch failure at boot serves
+the status-only schema instead of exiting; a failed `reloadPlugins` returns the
+error and keeps the schema that was already working. When adding a failure path, decide what it degrades *to*.
 
 ```typescript
 // ✅ a failure is reported and survivable
@@ -125,7 +127,21 @@ never throw away `data` because `errors` is non-empty.
 **Errors are the UX.** `maskedErrors: false` is deliberate: "bad token", "app
 down" and friends are exactly what the user needs to see. This is safe only
 because the deployment is LAN-only and single-user — revisit before exposing
-anything beyond the LAN, along with the unauthenticated `/health` and `/reload`.
+anything beyond the LAN, along with the unauthenticated `/health` and
+`reloadPlugins`.
+
+**Client→server is GraphQL.** The page talks only to `/graphql`; gateway
+operations (`plugins`, `reloadPlugins`) are gateway-local fields in the stitched
+schema, not REST routes. `/health` is the one exception, for probes that can't
+speak GraphQL. Don't add another route without flagging it for review.
+
+**Apps run in production mode; snapshots cover introspection.** Apollo apps
+refuse introspection under `NODE_ENV=production`, and they must not change to be
+stitched, so `loadSchema` falls back to `schemas/<name>.graphql` — only after
+introspection fails, and only after a `{ __typename }` probe shows the app is
+up. Never set an app's `NODE_ENV` to something else to make it stitchable:
+that turns on its development auth shortcuts. When an app's schema changes,
+refresh its snapshot with `npm run schemas:snapshot -- <name>`.
 
 **`server/src/gateway.ts` is the seam the federation phase replaces.** Swapping
 introspection+prefixing for composed `/subgraph` endpoints should change that
@@ -144,9 +160,10 @@ other real app, and never depend on the `DEFAULT_PLUGINS` defaults resolving.
 
 - `server/test/gateway.test.ts` — stitching and registry behavior against
   in-memory fixture schemas that collide the way the real apps do (duplicate
-  `Note`, `me`, `requestMagicLink`).
+  `Note`, `me`, `requestMagicLink`), plus the snapshot fallback against a
+  fixture started with `introspection: false`.
 - `server/test/smoke.test.ts` — the real `loadPlugins → loadGateway →
-  express+yoga` stack over HTTP: introspection, `/reload`'s schema swap, the
+  express+yoga` stack over HTTP: introspection, `reloadPlugins`' schema swap, the
   down-plugin path, and proof that auth headers reach upstream.
 
 Anything touching auth header resolution needs a smoke-test assertion, not just

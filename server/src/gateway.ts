@@ -1,9 +1,13 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 /**
  * Builds the stitched "supergraph": one executable schema that namespaces and
  * merges every reachable plugin, plus a local `plugins` status field.
  *
- * Per plugin: introspect its endpoint → wrap as a subschema whose types get a
- * `<Name>` prefix and whose root fields get a `<name>_` prefix → stitch.
+ * Per plugin: introspect its endpoint (or, when it refuses, read its schema
+ * snapshot — see loadSchema) → wrap as a subschema whose types get a `<Name>`
+ * prefix and whose root fields get a `<name>_` prefix → stitch.
  * Prefixing makes cross-app collisions impossible; provenance is legible in
  * every query. Subscriptions are filtered out for now (the apps serve them
  * over graphql-ws, which this HTTP gateway doesn't bridge — the page polls).
@@ -20,18 +24,39 @@ import {
   RenameTypes,
   schemaFromExecutor,
 } from '@graphql-tools/wrap';
-import { GraphQLSchema } from 'graphql';
+import {
+  type ExecutionResult,
+  GraphQLSchema,
+  buildSchema,
+  parse,
+} from 'graphql';
 import {
   type PluginConfig,
   resolveAuthHeaders,
   typePrefix,
 } from './plugins.ts';
 
+export type SchemaSource = 'introspection' | 'snapshot';
+
 export interface PluginStatus {
   name: string;
   url: string;
   ok: boolean;
+  /** Where the stitched schema came from; absent when not stitched. */
+  schemaSource?: SchemaSource;
+  /** Why it isn't stitched — or, with a snapshot, why introspection failed. */
   error?: string;
+}
+
+/** The committed snapshots, one `<name>.graphql` per plugin. */
+export const DEFAULT_SCHEMA_DIR = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../../schemas',
+);
+
+export interface LoadOptions {
+  /** Directory of `<name>.graphql` snapshots. Default: repo `schemas/`. */
+  schemaDir?: string;
 }
 
 export interface Gateway {
@@ -48,8 +73,10 @@ export interface LoadedPlugin {
 }
 
 /** Per-request context the yoga server provides. */
-interface GatewayContext {
+export interface GatewayContext {
   request?: { headers: { get(name: string): string | null } };
+  /** Re-load every plugin and swap the served schema; backs `reloadPlugins`. */
+  reload?: () => Promise<PluginStatus[]>;
 }
 
 /**
@@ -103,26 +130,98 @@ export function stitchLoaded(
         name: String!
         url: String!
         ok: Boolean!
+        "INTROSPECTION, or SNAPSHOT when the app refused introspection."
+        schemaSource: SchemaSource
         error: String
+      }
+      enum SchemaSource {
+        INTROSPECTION
+        SNAPSHOT
       }
       type Query {
         "The dashboard's plugin registry and whether each stitched in."
         plugins: [PluginStatus!]!
       }
+      type Mutation {
+        "Re-load every plugin's schema and swap the stitched schema in place."
+        reloadPlugins: [PluginStatus!]!
+      }
     `,
-    resolvers: { Query: { plugins: () => statuses } },
+    resolvers: {
+      Query: { plugins: () => statuses },
+      PluginStatus: {
+        schemaSource: (s: PluginStatus) => s.schemaSource?.toUpperCase(),
+      },
+      Mutation: {
+        reloadPlugins: (_: unknown, __: unknown, ctx: GatewayContext) => {
+          if (!ctx.reload) throw new Error('reload is not available here');
+          return ctx.reload();
+        },
+      },
+    },
   });
 
   return stitchSchemas({ subschemas: [...subschemas, statusSchema] });
 }
 
 /**
- * Introspect every plugin and stitch the reachable ones. A plugin that is
- * down or refuses introspection is reported in `statuses` and skipped — the
- * dashboard keeps working with whatever is up. Call again (POST /reload) to
- * retry.
+ * A plugin's schema, from introspection when the app allows it, else from its
+ * snapshot. Apollo Server refuses introspection under NODE_ENV=production
+ * (auto-cal, notes and philotes all take that default), and the apps must not
+ * change to be stitched — so a production app is stitched from
+ * `schemas/<name>.graphql`, while its queries still execute live against the
+ * app. Refresh snapshots with `npm run schemas:snapshot` against a dev instance.
+ *
+ * Throws when neither works; the error names both failures.
  */
-export async function loadGateway(plugins: PluginConfig[]): Promise<Gateway> {
+async function loadSchema(
+  plugin: PluginConfig,
+  executor: ReturnType<typeof buildHTTPExecutor>,
+  schemaDir: string,
+): Promise<{ schema: GraphQLSchema; source: SchemaSource; error?: string }> {
+  let introspectionError: string;
+  try {
+    return {
+      schema: await schemaFromExecutor(executor),
+      source: 'introspection',
+    };
+  } catch (err) {
+    introspectionError = message(err);
+  }
+  const file = path.join(schemaDir, `${plugin.name}.graphql`);
+  let sdl: string;
+  try {
+    sdl = await readFile(file, 'utf8');
+  } catch {
+    throw new Error(`${introspectionError} (and no snapshot at ${file})`);
+  }
+  // A snapshot says nothing about whether the app is up; ask it something
+  // every GraphQL server answers so a down app still reports down.
+  const probe = (await executor({
+    document: parse('{ __typename }'),
+  })) as ExecutionResult;
+  if (probe.errors?.length && !probe.data)
+    throw new Error(probe.errors.map((e) => e.message).join('; '));
+  return {
+    schema: buildSchema(sdl),
+    source: 'snapshot',
+    error: `introspection refused: ${introspectionError}`,
+  };
+}
+
+const message = (err: unknown) =>
+  err instanceof Error ? err.message : String(err);
+
+/**
+ * Load every plugin's schema and stitch the reachable ones. A plugin that is
+ * down, or refuses introspection with no snapshot, is reported in `statuses`
+ * and skipped — the dashboard keeps working with whatever is up. Call again
+ * (the `reloadPlugins` mutation) to retry.
+ */
+export async function loadGateway(
+  plugins: PluginConfig[],
+  { schemaDir = DEFAULT_SCHEMA_DIR }: LoadOptions = {},
+): Promise<Gateway> {
   const statuses: PluginStatus[] = [];
   const loaded: LoadedPlugin[] = [];
 
@@ -130,21 +229,31 @@ export async function loadGateway(plugins: PluginConfig[]): Promise<Gateway> {
     plugins.map(async (plugin) => {
       const executor = makeExecutor(plugin);
       try {
-        const schema = await schemaFromExecutor(executor);
+        const { schema, source, error } = await loadSchema(
+          plugin,
+          executor,
+          schemaDir,
+        );
         loaded.push({ plugin, schema, executor });
-        statuses.push({ name: plugin.name, url: plugin.url, ok: true });
+        statuses.push({
+          name: plugin.name,
+          url: plugin.url,
+          ok: true,
+          schemaSource: source,
+          ...(error ? { error } : {}),
+        });
       } catch (err) {
         statuses.push({
           name: plugin.name,
           url: plugin.url,
           ok: false,
-          error: err instanceof Error ? err.message : String(err),
+          error: message(err),
         });
       }
     }),
   );
 
-  // Stable order regardless of which introspection resolved first.
+  // Stable order regardless of which load resolved first.
   statuses.sort((a, b) => a.name.localeCompare(b.name));
   loaded.sort((a, b) => a.plugin.name.localeCompare(b.plugin.name));
 
